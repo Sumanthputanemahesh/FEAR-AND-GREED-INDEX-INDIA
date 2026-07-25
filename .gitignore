@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+venv/
+
+# Bulk raw downloads - regenerated on every run, no need to version.
+# The computed index files in data/ ARE committed (the website reads them).
+data/yf_raw/
