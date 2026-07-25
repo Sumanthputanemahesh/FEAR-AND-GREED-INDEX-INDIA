@@ -1,23 +1,23 @@
 {
-  "generated_at": "2026-07-25T11:52:09.246926",
+  "generated_at": "2026-07-25T11:42:02.743375",
   "steps": {
     "momentum": {
       "status": "OK",
-      "rows": 4499,
+      "rows": 4500,
       "range": [
         "2008-03-14",
-        "2026-07-23"
+        "2026-07-24"
       ],
-      "latest": -340.74760937500105
+      "latest": -428.35359374999825
     },
     "volatility": {
       "status": "OK",
-      "rows": 4504,
+      "rows": 4505,
       "range": [
         "2008-03-03",
-        "2026-07-23"
+        "2026-07-24"
       ],
-      "latest": 13.479999542236328
+      "latest": 14.029999732971191
     },
     "strength_and_breadth": {
       "status": "OK",
@@ -32,12 +32,12 @@
     "safe_haven": {
       "status": "OK",
       "bond_ticker_used": "LTGILTBEES.NS",
-      "rows": 1742,
+      "rows": 1743,
       "range": [
         "2018-10-05",
-        "2026-07-23"
+        "2026-07-24"
       ],
-      "latest": -0.011043523205681582,
+      "latest": -0.014344732465996213,
       "probe": {
         "LTGILTBEES.NS": {
           "rows": 1765,
@@ -59,7 +59,7 @@
     "put_call": {
       "status": "OK",
       "rows": 528,
-      "newly_fetched": 258,
+      "newly_fetched": 0,
       "days_unavailable": 30,
       "range": [
         "2024-06-05",
@@ -86,12 +86,12 @@
           "breadth",
           "safe_haven"
         ],
-        "n_days": 1475,
+        "n_days": 1476,
         "range": [
           "2020-06-11",
-          "2026-07-23"
+          "2026-07-24"
         ],
-        "latest": 41.04,
+        "latest": 29.8,
         "zone": "Fear"
       },
       "extended": {
@@ -103,13 +103,13 @@
           "safe_haven",
           "put_call"
         ],
-        "n_days": 275,
+        "n_days": 276,
         "range": [
           "2025-06-11",
-          "2026-07-23"
+          "2026-07-24"
         ],
-        "latest": 47.61,
-        "zone": "Neutral"
+        "latest": 35.66,
+        "zone": "Fear"
       }
     },
     "FINAL": {
@@ -124,18 +124,18 @@
       "n_components": 5,
       "date_range": [
         "2020-06-11",
-        "2026-07-23"
+        "2026-07-24"
       ],
-      "n_days": 1475,
-      "latest_date": "2026-07-23",
-      "latest_score": 41.04,
+      "n_days": 1476,
+      "latest_date": "2026-07-24",
+      "latest_score": 29.8,
       "latest_zone": "Fear",
       "latest_components": {
-        "momentum": 33.86,
-        "volatility": 34.26,
-        "strength": 43.82,
-        "breadth": 60.16,
-        "safe_haven": 33.07
+        "momentum": 31.87,
+        "volatility": 29.88,
+        "strength": 17.53,
+        "breadth": 40.24,
+        "safe_haven": 29.48
       },
       "zone_distribution_pct": {
         "Greed": 32.8,
