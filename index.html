@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>India Fear &amp; Greed Index</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{ --ink:#0f1419; --mid:#5a6570; --line:#e3e6e8; --panel:#fff; --bg:#fafafa; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .topbar{background:var(--panel);border-bottom:1px solid var(--line);padding:12px 0}
+  .topbar .wrap{display:flex;gap:44px;align-items:center;flex-wrap:wrap}
+  .byline{margin-left:auto;text-align:right}
+  .byline b{display:block;color:var(--mid);font-size:10.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px}
+  .byline span{font-size:13.5px;font-weight:700;letter-spacing:-.1px}
+  @media(max-width:700px){.byline{margin-left:0;text-align:left}}
+  .tick{font-size:13.5px;font-weight:600}
+  .tick b{display:block;color:var(--mid);font-size:10.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  h1{font-size:44px;font-weight:800;letter-spacing:-1.2px;margin:36px 0 10px}
+  .lede{color:var(--mid);font-size:16px;margin:0 0 26px}
+  .main{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:start;
+    padding-bottom:10px}
+  @media(max-width:900px){.main{grid-template-columns:1fr}h1{font-size:32px}}
+  .verdict{text-align:center;margin:-14px 0 0;font-size:20px;color:var(--mid)}
+  .verdict b{font-weight:800}
+  .updated{color:var(--mid);font-size:12.5px;margin:26px 0 0}
+  /* history: 2 x 2 grid, CNN style, sitting under the gauge */
+  .hist{list-style:none;margin:8px 0 0;padding:0;
+    display:grid;grid-template-columns:1fr 1fr;gap:0 46px}
+  @media(max-width:700px){.hist{grid-template-columns:1fr}}
+  .hist li{display:flex;align-items:center;gap:10px;padding:17px 0;
+    border-bottom:1px solid var(--line)}
+  .hist .txt{flex:0 0 auto}
+  .hist .lbl{display:block;color:var(--mid);font-size:12.5px;margin-bottom:2px}
+  .hist .zn{font-weight:700;font-size:15px;white-space:nowrap}
+  .hist .dots{flex:1;border-bottom:1px dotted #c3c8cc;height:1px;margin:0 4px}
+  .pill{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+    font-weight:800;font-size:14px;border:1.5px solid;flex:0 0 auto}
+  .seg{display:inline-flex;background:#eff1f2;border-radius:20px;padding:3px;margin-bottom:20px}
+  .seg button{border:0;background:none;padding:7px 16px;border-radius:18px;
+    font-size:13px;font-weight:600;color:var(--mid);cursor:pointer}
+  .seg button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  h2.sec{font-size:13px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;
+    margin:42px 0 4px;padding-left:11px;border-left:4px solid var(--ink)}
+  .ind{padding:24px 0;border-bottom:1px solid var(--line);
+    display:grid;grid-template-columns:1fr 104px 1.15fr;gap:26px;align-items:center}
+  @media(max-width:900px){.ind{grid-template-columns:1fr;gap:12px}}
+  .ind h3{margin:0 0 5px;font-size:17px;font-weight:700}
+  .ind .desc,.ind .expl{color:var(--mid);font-size:13.5px;margin:0;line-height:1.65}
+  .tag{justify-self:center;text-align:center;padding:7px 12px;border:1.5px solid;
+    border-radius:5px;font-size:11px;font-weight:800;letter-spacing:.5px;
+    text-transform:uppercase;white-space:nowrap}
+  .tag small{display:block;font-size:16px;margin-top:3px;letter-spacing:0}
+  .chartbox{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:22px;margin:28px 0}
+  .err{background:#fdecec;border:1px solid #f5b5b5;color:#8c2020;padding:15px;
+    border-radius:9px;margin:22px 0;font-size:14px}
+  footer{color:var(--mid);font-size:12px;line-height:1.9;padding:30px 0 60px}
+  footer b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="tick"><b>Fear &amp; Greed</b><span id="tFg">—</span></div>
+    <div class="tick"><b>Signals used</b><span id="tN">—</span></div>
+    <div class="tick"><b>History</b><span id="tH">—</span></div>
+    <div class="byline"><b>Built by</b><span>Sumanth Putane Mahesh</span></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <h1>India Fear &amp; Greed Index</h1>
+  <p class="lede">What emotion is driving the Indian market now?</p>
+
+  <div id="err"></div>
+
+  <div class="seg">
+    <button id="bCore" class="on" onclick="setVer('core')">Core · 5 signals</button>
+    <button id="bExt" onclick="setVer('extended')">Extended · 6 signals</button>
+  </div>
+
+  <div class="main">
+    <div>
+      <svg id="gauge" viewBox="0 0 620 372" style="width:100%;height:auto"></svg>
+      <p class="verdict"><b id="vZone">—</b> is driving the Indian market</p>
+    </div>
+    <div class="chartbox" style="margin:0">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--mid);
+                  text-transform:uppercase;margin-bottom:12px">Index over time</div>
+      <canvas id="chart" height="150"></canvas>
+    </div>
+  </div>
+
+  <ul class="hist" id="hist"></ul>
+  <p class="updated" id="updated"></p>
+
+  <h2 class="sec" id="secTitle">Fear &amp; Greed Indicators</h2>
+  <div id="inds"></div>
+
+  <footer>
+    <b>Data</b> — Yahoo Finance (Nifty 50 and its constituents, India VIX, LTGILTBEES gilt ETF);
+    NSE F&amp;O UDiFF bhavcopy (Put/Call). Rebuilt automatically each weekday evening IST.<br>
+    <b>Method</b> — each signal is scored 0–100 by its rolling 252-day percentile rank, then
+    equally weighted. Volatility and Put/Call are inverted, so a high reading always means greed.<br>
+    <b>Core vs Extended</b> — Put/Call only reaches back to mid-2025 because NSE's UDiFF bhavcopy
+    format did not exist before July 2024. Core uses the five long-history signals and is the
+    version to use for analysis; Extended adds Put/Call. They correlate at 0.96 but are not
+    interchangeable.<br>
+    <b>Junk bond demand</b>, the seventh CNN component, is omitted: India has no liquid free daily
+    high-yield versus investment-grade spread series.<br><br>
+    <b>For research and information only. Not investment advice.</b><br><br>
+    Built by <b>Sumanth Putane Mahesh</b> · MSc Finance, Cranfield University ·
+    methodology adapted from the author's UK, US and Germany Fear &amp; Greed indices.
+  </footer>
+</div>
+
+<script>
+const ZONES=[[25,'Extreme Fear','#d64545'],[45,'Fear','#e8896b'],
+             [55,'Neutral','#c9a227'],[75,'Greed','#7cb342'],[100,'Extreme Greed','#2e7d32']];
+const BANDS=[[0,25,'#d64545'],[25,45,'#f0a58f'],[45,55,'#e6e3dc'],
+             [55,75,'#a5d6a7'],[75,100,'#4c9a51']];
+
+const META={
+  momentum:['Market Momentum','Nifty 50 vs its 125-day moving average',
+    'When the Nifty sits above its 125-day average, investors are willing to pay up for equities. Sustained readings below it signal the trend has turned against them.'],
+  volatility:['Volatility','India VIX',
+    'India VIX measures expected 30-day swings in the Nifty. Rising volatility means investors are paying more for protection, which reads as fear. Inverted.'],
+  strength:['Price Strength','52-week highs vs lows across Nifty 50 constituents',
+    'Counts how many index members are hitting one-year highs against those hitting lows. A market making broad new highs is a confident one.'],
+  breadth:['Market Breadth','Advancing vs declining stocks, 10-day average',
+    'Measures how widely a move is shared. A rally carried by a few heavyweights is weaker than one where most of the index advances together.'],
+  safe_haven:['Safe Haven Demand','Nifty 20-day return vs long-dated gilt return',
+    'Compares equity returns against government bonds over the past month. Investors rotating into gilts are seeking safety; equities outperforming signals appetite for risk.'],
+  put_call:['Put and Call Options','Nifty index options put/call open interest ratio',
+    'A ratio above 1 means more puts than calls are open, indicating investors are positioning for downside. Inverted.'],
+  credit_spread:['Junk Bond Demand','High-yield vs investment-grade spread',
+    'Not available for India — the domestic corporate bond market has no liquid free daily spread series.']
+};
+
+let DATA=null,VER='core',chart=null;
+const zoneOf=v=>{for(const[b,n]of ZONES)if(v<=b)return n;return'Extreme Greed'};
+const colOf=v=>{for(const[b,n,c]of ZONES)if(v<=b)return c;return'#2e7d32'};
+
+function polar(cx,cy,r,deg){const a=(deg-180)*Math.PI/180;return[cx+r*Math.cos(a),cy+r*Math.sin(a)]}
+function arcPath(cx,cy,rO,rI,d0,d1){
+  const[x0,y0]=polar(cx,cy,rO,d0),[x1,y1]=polar(cx,cy,rO,d1);
+  const[u1,v1]=polar(cx,cy,rI,d1),[u0,v0]=polar(cx,cy,rI,d0);
+  return`M${x0},${y0} A${rO},${rO} 0 0 1 ${x1},${y1} L${u1},${v1} A${rI},${rI} 0 0 0 ${u0},${v0} Z`;
+}
+
+function drawGauge(score){
+  const cx=310,cy=305,rO=248,rI=166,g=[];
+  BANDS.forEach(([a,b,c])=>g.push(
+    `<path d="${arcPath(cx,cy,rO,rI,a*1.8+0.8,b*1.8-0.8)}" fill="${c}"/>`));
+  [[12.5,'EXTREME FEAR'],[35,'FEAR'],[50,'NEUTRAL'],[65,'GREED'],[87.5,'EXTREME GREED']]
+    .forEach(([p,t])=>{
+      const[x,y]=polar(cx,cy,(rO+rI)/2,p*1.8);
+      g.push(`<text x="${x}" y="${y}" fill="#3d4650" font-size="14.5" font-weight="700"
+        text-anchor="middle" dominant-baseline="middle" letter-spacing="1.1"
+        transform="rotate(${p*1.8-90} ${x} ${y})">${t}</text>`);
+    });
+  [0,25,50,75,100].forEach(v=>{
+    const[x,y]=polar(cx,cy,rI-24,v*1.8);
+    g.push(`<text x="${x}" y="${y}" fill="#98a1a9" font-size="18"
+      text-anchor="middle" dominant-baseline="middle">${v}</text>`);
+  });
+  const[nx,ny]=polar(cx,cy,rI-14,score*1.8);
+  g.push(`<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#0f1419"
+    stroke-width="6.5" stroke-linecap="round"/>`);
+  g.push(`<circle cx="${cx}" cy="${cy}" r="60" fill="#fafafa"/>`);
+  g.push(`<text x="${cx}" y="${cy-4}" font-size="58" font-weight="800" fill="#0f1419"
+    text-anchor="middle" dominant-baseline="middle">${score.toFixed(0)}</text>`);
+  document.getElementById('gauge').innerHTML=g.join('');
+}
+
+function nearest(rows,daysBack){
+  const t=new Date(rows[rows.length-1].date);
+  t.setDate(t.getDate()-daysBack);
+  let best=null,bd=1/0;
+  for(const r of rows){const d=Math.abs(new Date(r.date)-t);if(d<bd){bd=d;best=r}}
+  return (bd/86400000)>Math.max(21,daysBack*0.35)?null:best;
+}
+
+async function load(){
+  try{
+    const r=await fetch('data/india_fgi_history.json?cb='+Date.now());
+    if(!r.ok)throw new Error('HTTP '+r.status+' fetching the history file');
+    DATA=await r.json();
+    if(!DATA||!DATA.core||!DATA.core.length)throw new Error('history file is empty');
+    if(!DATA.extended||!DATA.extended.length){
+      const b=document.getElementById('bExt');
+      b.disabled=true;b.style.opacity=.4;b.title='Extended index not available in this build';
+    }
+    render();
+  }catch(e){
+    document.getElementById('err').innerHTML='<div class="err"><b>Could not load data.</b> '+
+      e.message+'<br>If this is a fresh deploy, check that the GitHub Action has run and that '+
+      '<code>data/india_fgi_history.json</code> exists in the repo.</div>';
+  }
+}
+
+function setVer(v){
+  VER=v;
+  document.getElementById('bCore').className=v==='core'?'on':'';
+  document.getElementById('bExt').className=v==='extended'?'on':'';
+  render();
+}
+
+function render(){
+  const rows=(DATA[VER]&&DATA[VER].length)?DATA[VER]:DATA.core;
+  const last=rows[rows.length-1],s=last.composite_score,c=colOf(s);
+
+  drawGauge(s);
+  const vz=document.getElementById('vZone');
+  vz.textContent=last.zone; vz.style.color=c;
+
+  document.getElementById('updated').textContent='Last updated '+
+    new Date(last.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  const fg=document.getElementById('tFg');
+  fg.textContent=s.toFixed(0)+' — '+last.zone; fg.style.color=c;
+  document.getElementById('tN').textContent=Object.keys(last.components||{}).length;
+  document.getElementById('tH').textContent=rows.length.toLocaleString()+' days';
+
+  document.getElementById('hist').innerHTML=
+    [['Previous close',1],['1 week ago',7],['1 month ago',30],
+     ['3 months ago',91],['6 months ago',182],['1 year ago',365]].map(([lbl,d])=>{
+      const p=nearest(rows,d);
+      if(!p)return`<li><span class="txt"><span class="lbl">${lbl}</span>
+        <span class="zn" style="color:#b3bac0">not in range</span></span>
+        <span class="dots"></span></li>`;
+      const pc=colOf(p.composite_score);
+      return`<li><span class="txt"><span class="lbl">${lbl}</span>
+        <span class="zn" style="color:${pc}">${p.zone}</span></span>
+        <span class="dots"></span>
+        <span class="pill" style="border-color:${pc};color:${pc}">${p.composite_score.toFixed(0)}</span></li>`;
+    }).join('');
+
+  const comps=last.components||{};
+  document.getElementById('secTitle').textContent=
+    Object.keys(comps).length+' Fear & Greed Indicators';
+  document.getElementById('inds').innerHTML=Object.entries(comps).map(([k,v])=>{
+    const m=META[k]||[k,'',''],cc=colOf(v);
+    return`<div class="ind">
+      <div><h3>${m[0]}</h3><p class="desc">${m[1]}</p></div>
+      <div class="tag" style="border-color:${cc};color:${cc}">${zoneOf(v)}<small>${v.toFixed(0)}</small></div>
+      <p class="expl">${m[2]}</p></div>`;
+  }).join('');
+
+  if(chart)chart.destroy();
+  chart=new Chart(document.getElementById('chart'),{
+    type:'line',
+    data:{labels:rows.map(r=>r.date),
+      datasets:[{data:rows.map(r=>r.composite_score),borderColor:'#0f1419',
+        borderWidth:1.3,pointRadius:0,tension:.12,fill:false}]},
+    options:{responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:x=>x.parsed.y.toFixed(1)+' — '+zoneOf(x.parsed.y)}}},
+      scales:{y:{min:0,max:100,ticks:{stepSize:25,color:'#98a1a9'},grid:{color:'#eef0f1'}},
+              x:{ticks:{color:'#98a1a9',maxTicksLimit:10,autoSkip:true},grid:{display:false}}}}
+  });
+}
+
+load();
+</script>
+</body>
+</html>
