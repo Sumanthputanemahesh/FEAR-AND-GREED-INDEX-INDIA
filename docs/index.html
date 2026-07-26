@@ -4,399 +4,1010 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>India Fear &amp; Greed Index</title>
+<meta name="description" content="A daily sentiment gauge for Indian equities, built from six independent market signals.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,470;9..144,560&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
 <style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root {
+  --paper: #faf9f6;
+  --panel: #f2f0ea;
+  --ink: #17140f;
+  --ink-soft: #4a453c;
+  --mute: #837c6d;
+  --hairline: rgba(23,20,15,0.12);
+  --hairline-strong: rgba(23,20,15,0.22);
+  --accent: #17140f;
+
+  --extreme-fear: #9e2a2b;
+  --fear: #c0703a;
+  --neutral: #a6924f;
+  --greed: #5c7c3f;
+  --extreme-greed: #35592f;
+
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
   :root {
-    --bg: #ffffff; --panel: #f7f7f8; --text: #1a1a1a; --sub: #6b6b70; --border: #e5e5e8;
-    --extreme-fear: #a3121a; --fear: #e8632c; --neutral: #f2c94c; --greed: #9acb52; --extreme-greed: #2e8b3d;
-    --gauge-track: #eceef0; --needle: #1a1a1a;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #121214; --panel: #1c1c1f; --text: #eaeaea; --sub: #9a9aa0; --border: #2c2c30;
-      --gauge-track: #2a2a2e; --needle: #eaeaea;
-    }
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-    background: var(--bg); color: var(--text);
-  }
-  header { padding: 20px 24px 4px; text-align: center; border-bottom: 1px solid var(--border); }
-  header h1 { margin: 0 0 4px; font-size: 1.4rem; font-weight: 700; }
-  header p { margin: 0 0 14px; color: var(--sub); font-size: 0.85rem; }
-  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 20px 40px; }
+    --paper: #15130f;
+    --panel: #1c1a15;
+    --ink: #ece7dc;
+    --ink-soft: #c4bcac;
+    --mute: #8c8574;
+    --hairline: rgba(236,231,220,0.14);
+    --hairline-strong: rgba(236,231,220,0.26);
+    --accent: #ece7dc;
 
-  .gauge-section { display: flex; flex-direction: column; align-items: center; }
-  .gauge-title { font-size: 0.95rem; font-weight: 600; color: var(--sub); margin-bottom: 6px; }
-  svg#gauge { width: 100%; max-width: 460px; height: auto; }
-  .gauge-score-num { font-size: 3rem; font-weight: 800; }
-  .gauge-zone-label { font-size: 1.15rem; font-weight: 700; margin-top: -6px; }
-  .gauge-date { color: var(--sub); font-size: 0.8rem; margin-top: 2px; }
-
-  .timeline {
-    display: flex; justify-content: center; gap: 22px; flex-wrap: wrap;
-    margin: 18px 0 30px; padding: 14px 10px; background: var(--panel);
-    border-radius: 12px; border: 1px solid var(--border);
+    --extreme-fear: #c9524f;
+    --fear: #d2884f;
+    --neutral: #bfa964;
+    --greed: #7fa562;
+    --extreme-greed: #5c8853;
   }
-  .timeline .tl-item { text-align: center; min-width: 90px; }
-  .timeline .tl-label { font-size: 0.72rem; color: var(--sub); text-transform: uppercase; letter-spacing: .03em; }
-  .timeline .tl-val { font-size: 1.15rem; font-weight: 700; margin-top: 2px; }
-  .timeline .tl-zone { font-size: 0.72rem; margin-top: 1px; }
+}
 
-  .section-label {
-    font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-    color: var(--sub); margin: 30px 0 12px;
-  }
-  .components { display: flex; flex-direction: column; gap: 10px; }
-  .comp-row {
-    display: grid; grid-template-columns: 140px 1fr 90px; align-items: center; gap: 14px;
-    background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px;
-  }
-  .comp-name { font-size: 0.88rem; font-weight: 600; }
-  .comp-track { position: relative; height: 8px; border-radius: 4px;
-    background: linear-gradient(90deg, var(--extreme-fear) 0%, var(--fear) 25%, var(--neutral) 50%, var(--greed) 75%, var(--extreme-greed) 100%); }
-  .comp-marker { position: absolute; top: -4px; width: 3px; height: 16px; background: var(--text); border-radius: 2px; transform: translateX(-1.5px); }
-  .comp-readout { text-align: right; font-size: 0.85rem; font-weight: 700; }
-  .comp-readout .z { display: block; font-size: 0.68rem; font-weight: 600; color: var(--sub); }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  -webkit-font-smoothing: antialiased;
+}
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 
-  .chart-card { margin-top: 30px; }
-  .chart-card.fgi canvas { max-height: 320px; }
-  .chart-card.price canvas { max-height: 140px; }
-  .chart-card + .chart-card { margin-top: 6px; }
+a { color: inherit; }
 
-  footer { text-align: center; padding: 30px 20px; color: var(--sub); font-size: 0.75rem; line-height: 1.7; border-top: 1px solid var(--border); margin-top: 20px; }
-  footer a { color: var(--sub); }
-  .err { text-align: center; color: var(--fear); padding: 50px 20px; }
-  .zonecolor-Extreme-Fear { color: var(--extreme-fear); }
-  .zonecolor-Fear { color: var(--fear); }
-  .zonecolor-Neutral { color: #b8901f; }
-  .zonecolor-Greed { color: #6a9c34; }
-  .zonecolor-Extreme-Greed { color: var(--extreme-greed); }
-  @media (prefers-color-scheme: dark) {
-    .zonecolor-Neutral { color: var(--neutral); }
-    .zonecolor-Greed { color: var(--greed); }
-  }
+/* ============================================================
+   LAYOUT SHELL
+   ============================================================ */
+.shell { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+
+.masthead {
+  border-bottom: 1px solid var(--hairline);
+  padding: 22px 0 18px;
+}
+.masthead-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  flex-wrap: wrap; gap: 8px 24px;
+}
+.wordmark {
+  font-family: var(--serif);
+  font-weight: 470;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+.wordmark em { font-style: italic; color: var(--mute); font-weight: 400; }
+.masthead-meta {
+  font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--mute); display: flex; gap: 18px; flex-wrap: wrap;
+}
+.masthead-meta b { color: var(--ink-soft); font-weight: 600; }
+
+/* ============================================================
+   HERO — asymmetric, not centered
+   ============================================================ */
+.hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 56px;
+  padding: 52px 0 44px;
+  border-bottom: 1px solid var(--hairline);
+  align-items: center;
+}
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; gap: 32px; padding: 36px 0; }
+}
+
+.hero-text .kicker {
+  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--mute); margin-bottom: 14px; display: block;
+}
+.hero-text h1 {
+  font-family: var(--serif);
+  font-weight: 380;
+  font-size: clamp(2.1rem, 4.4vw, 3.15rem);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  margin: 0 0 18px;
+}
+.hero-text p.dek {
+  font-size: 0.98rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  max-width: 46ch;
+  margin: 0 0 22px;
+}
+
+.score-block { display: flex; align-items: baseline; gap: 18px; margin-top: 6px; }
+.score-num {
+  font-family: var(--serif);
+  font-weight: 470;
+  font-size: clamp(4.4rem, 9vw, 6.4rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  transition: color 0.3s ease;
+}
+.score-side { display: flex; flex-direction: column; gap: 3px; }
+.score-zone {
+  font-size: 1.05rem; font-weight: 600; letter-spacing: -0.005em;
+  transition: color 0.3s ease;
+}
+.score-date { font-size: 0.78rem; color: var(--mute); }
+.score-asof-live { font-size: 0.72rem; color: var(--mute); }
+.score-asof-live.scrubbing { color: var(--ink-soft); font-weight: 500; }
+
+/* Gauge */
+.gauge-wrap { display: flex; flex-direction: column; align-items: center; }
+svg#gauge { width: 100%; max-width: 400px; height: auto; }
+.gauge-price { font-size: 0.82rem; color: var(--mute); margin-top: 6px; text-align: center; }
+.gauge-price b { color: var(--ink-soft); font-weight: 600; }
+
+/* ============================================================
+   TIMELINE STRIP
+   ============================================================ */
+.timeline {
+  display: flex; padding: 18px 0;
+  border-bottom: 1px solid var(--hairline);
+  overflow-x: auto;
+}
+.tl-item {
+  flex: 1 1 0; min-width: 96px;
+  padding: 0 18px; text-align: left;
+  border-left: 1px solid var(--hairline);
+}
+.tl-item:first-child { border-left: none; padding-left: 0; }
+.tl-label {
+  font-size: 0.68rem; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--mute); margin-bottom: 5px;
+}
+.tl-val { font-size: 1.25rem; font-weight: 600; font-family: var(--serif); }
+.tl-zone { font-size: 0.72rem; margin-top: 1px; color: var(--mute); }
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+.section { padding: 44px 0; border-bottom: 1px solid var(--hairline); }
+.section-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 26px; gap: 16px; flex-wrap: wrap;
+}
+.section-title {
+  font-family: var(--serif); font-weight: 470; font-size: 1.3rem;
+}
+.section-note { font-size: 0.78rem; color: var(--mute); max-width: 34ch; text-align: right; }
+
+/* ---- Components list ---- */
+.comp-list { border-top: 1px solid var(--hairline); }
+.comp-row {
+  display: block; width: 100%; text-align: left;
+  background: none; border: none; border-bottom: 1px solid var(--hairline);
+  padding: 16px 0; cursor: pointer; font: inherit; color: inherit;
+}
+.comp-row-top {
+  display: grid;
+  grid-template-columns: 22px minmax(140px,220px) 1fr 130px 56px;
+  align-items: center; gap: 18px;
+}
+@media (max-width: 760px) {
+  .comp-row-top { grid-template-columns: 18px 1fr 84px 40px; }
+  .comp-row-spark { display: none; }
+}
+.comp-chevron {
+  width: 8px; height: 8px; border-right: 1.5px solid var(--mute); border-bottom: 1.5px solid var(--mute);
+  transform: rotate(-45deg); transition: transform 0.25s ease; margin-top: -2px;
+}
+.comp-row[aria-expanded="true"] .comp-chevron { transform: rotate(45deg); margin-top: 2px; }
+.comp-name { font-weight: 600; font-size: 0.94rem; }
+.comp-track {
+  position: relative; height: 3px; background: var(--hairline-strong); border-radius: 0;
+}
+.comp-fill {
+  position: absolute; top: 0; left: 0; height: 100%;
+  background: var(--ink-soft); transition: width 0.4s ease;
+}
+.comp-marker {
+  position: absolute; top: -3.5px; width: 2px; height: 10px;
+  background: var(--zone-color, var(--ink)); transition: left 0.4s ease;
+}
+.comp-readout { text-align: right; font-family: var(--serif); font-size: 1.05rem; font-weight: 500; }
+.comp-readout .z { display: block; font-family: var(--sans); font-size: 0.68rem; color: var(--mute); font-weight: 500; margin-top: 1px; }
+.comp-row-spark { width: 100%; height: 28px; }
+
+.comp-detail {
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+}
+.comp-row[aria-expanded="true"] + .comp-detail { max-height: 160px; }
+.comp-detail-inner {
+  padding: 4px 0 20px 40px; display: grid; grid-template-columns: 1fr 220px; gap: 24px; align-items: center;
+}
+@media (max-width: 760px) {
+  .comp-detail-inner { grid-template-columns: 1fr; padding-left: 0; }
+}
+.comp-desc { font-size: 0.86rem; color: var(--ink-soft); line-height: 1.5; max-width: 52ch; }
+.comp-big-spark { width: 100%; height: 56px; }
+
+/* ---- Charts ---- */
+.chart-toolbar { display: flex; align-items: center; gap: 8px; }
+.range-btn {
+  font-family: var(--sans); font-size: 0.74rem; font-weight: 500; letter-spacing: 0.02em;
+  color: var(--mute); background: none; border: 1px solid transparent;
+  padding: 5px 10px; cursor: pointer; border-radius: 2px;
+}
+.range-btn:hover { color: var(--ink); }
+.range-btn[aria-pressed="true"] { color: var(--ink); border-color: var(--hairline-strong); }
+.range-btn:focus-visible, .comp-row:focus-visible, a:focus-visible { outline: 2px solid var(--ink-soft); outline-offset: 2px; }
+
+.chart-block { position: relative; margin-top: 6px; }
+.chart-block canvas { display: block; width: 100%; }
+.chart-fgi { height: 260px; }
+.chart-price { height: 130px; margin-top: 2px; }
+.chart-axis-label {
+  font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute);
+  margin-bottom: 8px;
+}
+
+.crosshair-tip {
+  position: absolute; pointer-events: none; z-index: 5;
+  background: var(--ink); color: var(--paper);
+  font-size: 0.74rem; padding: 8px 11px; line-height: 1.5;
+  transform: translate(-50%, -110%); white-space: nowrap;
+  opacity: 0; transition: opacity 0.12s ease;
+}
+.crosshair-tip.show { opacity: 1; }
+.crosshair-tip .ct-date { color: var(--mute); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+.crosshair-tip b { font-family: var(--serif); }
+
+.scrub-hint { font-size: 0.74rem; color: var(--mute); margin-top: 10px; }
+
+/* Keyboard scrub slider (visually minimal, fully functional) */
+.scrub-range {
+  width: 100%; margin: 14px 0 0; appearance: none; height: 2px;
+  background: var(--hairline-strong); outline: none;
+}
+.scrub-range::-webkit-slider-thumb {
+  appearance: none; width: 11px; height: 11px; border-radius: 50%;
+  background: var(--ink); cursor: pointer; margin-top: -4.5px;
+}
+.scrub-range::-moz-range-thumb { width: 11px; height: 11px; border-radius: 50%; background: var(--ink); border: none; cursor: pointer; }
+
+/* ---- Methodology ---- */
+.method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+@media (max-width: 760px) { .method-grid { grid-template-columns: 1fr; gap: 24px; } }
+.method-grid h3 {
+  font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--mute); font-weight: 600; margin: 0 0 10px;
+}
+.method-grid p, .method-grid ol { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.65; margin: 0; }
+.method-grid ol { padding-left: 1.1em; }
+.method-grid li { margin-bottom: 4px; }
+.zone-key { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 14px; }
+.zone-key span { font-size: 0.76rem; color: var(--ink-soft); }
+.zone-key b { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+
+footer {
+  padding: 30px 0 50px;
+  font-size: 0.76rem; color: var(--mute); line-height: 1.7;
+}
+footer a { text-decoration: underline; text-decoration-color: var(--hairline-strong); text-underline-offset: 3px; }
+footer a:hover { text-decoration-color: var(--mute); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
 </style>
 </head>
 <body>
-<header>
-  <h1>India Fear &amp; Greed Index</h1>
-  <p>What emotion is driving the Indian market right now? · free-data live index, rolling 252-day percentile methodology</p>
-</header>
-<div class="wrap">
-  <div id="content">
-    <div class="err">Loading latest reading…</div>
-  </div>
+
+<div class="shell">
+  <header class="masthead">
+    <div class="masthead-row">
+      <div class="wordmark">India Fear &amp; Greed <em>Index</em></div>
+      <div class="masthead-meta" id="masthead-meta">
+        <span><b id="mh-history">—</b> days of history</span>
+        <span><b id="mh-components">—</b> signals</span>
+        <span><b id="mh-updated">—</b></span>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-text">
+      <span class="kicker">Market sentiment, quantified daily</span>
+      <h1>What is the market feeling right now?</h1>
+      <p class="dek">Six independent signals — momentum, volatility, breadth, safe-haven demand and options positioning — collapsed into a single 0–100 reading of fear or greed in Indian equities, rebuilt every trading day from public market data.</p>
+      <div class="score-block">
+        <div class="score-num tnum" id="score-num">—</div>
+        <div class="score-side">
+          <div class="score-zone" id="score-zone">Loading…</div>
+          <div class="score-date" id="score-date"></div>
+          <div class="score-asof-live" id="score-live-tag"></div>
+        </div>
+      </div>
+    </div>
+    <div class="gauge-wrap">
+      <div id="gauge-mount"></div>
+      <div class="gauge-price" id="gauge-price"></div>
+    </div>
+  </section>
+
+  <div class="timeline" id="timeline" aria-label="Score at earlier points in time"></div>
+
+  <section class="section">
+    <div class="section-head">
+      <div class="section-title">The six signals</div>
+      <div class="section-note">Each converted to a percentile rank against its own trailing 252-day range. Click a row for detail.</div>
+    </div>
+    <div class="comp-list" id="comp-list" role="list"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div class="section-title">Index history, against the market it measures</div>
+      <div class="chart-toolbar" id="range-toolbar" role="group" aria-label="Chart date range"></div>
+    </div>
+    <div class="chart-axis-label">Fear &amp; greed composite — drag to scrub through history</div>
+    <div class="chart-block chart-fgi" id="chart-fgi-wrap">
+      <canvas id="chart-fgi"></canvas>
+      <div class="crosshair-tip" id="crosshair-tip"></div>
+    </div>
+    <div class="chart-axis-label" style="margin-top:26px;">Nifty 50, rebased to 100 at range start</div>
+    <div class="chart-block chart-price" id="chart-price-wrap">
+      <canvas id="chart-price"></canvas>
+    </div>
+    <label class="visually-hidden" for="scrub-range">Scrub through history by date</label>
+    <input type="range" id="scrub-range" class="scrub-range" min="0" max="100" value="100" step="1">
+    <div class="scrub-hint">Hover or drag the chart above — or use the slider — to see the gauge and every signal as they stood on any past date.</div>
+  </section>
+
+  <section class="section" style="border-bottom:none;">
+    <div class="section-head"><div class="section-title">Method &amp; caveats</div></div>
+    <div class="method-grid">
+      <div>
+        <h3>How the composite is built</h3>
+        <ol>
+          <li>Each of the six raw signals is ranked against its own trailing 252 trading days.</li>
+          <li>That rank becomes a 0–100 score — the percentile of days it beats.</li>
+          <li>Volatility and put/call are inverted, so a high score always means greed.</li>
+          <li>The composite is the equal-weighted mean of whichever scores are available that day.</li>
+        </ol>
+        <div class="zone-key">
+          <span><b style="background:var(--extreme-fear)"></b>0–25 Extreme Fear</span>
+          <span><b style="background:var(--fear)"></b>26–45 Fear</span>
+          <span><b style="background:var(--neutral)"></b>46–55 Neutral</span>
+          <span><b style="background:var(--greed)"></b>56–75 Greed</span>
+          <span><b style="background:var(--extreme-greed)"></b>76–100 Extreme Greed</span>
+        </div>
+      </div>
+      <div>
+        <h3>Sources &amp; limitations</h3>
+        <p>
+          Built entirely from free data — Yahoo Finance for price, volatility (India VIX) and constituent-level
+          breadth; NSE's own F&amp;O bhavcopy, parsed directly, for a native Nifty options put/call ratio;
+          a gilt ETF standing in for bond returns. A credit-spread component is deliberately omitted — no free,
+          liquid, daily India high-yield-versus-investment-grade series exists. Same construction methodology as
+          the companion <a href="https://sumanthputanemahesh.github.io/UK-fear-and-greed-index-/">UK index</a> —
+          see the <a href="https://github.com/Sumanthputanemahesh/FEAR-AND-GREED-INDEX-INDIA">repository</a>
+          for exact sources. Not investment advice.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Data refreshes automatically on trading days. Companion index for
+    <a href="https://sumanthputanemahesh.github.io/UK-fear-and-greed-index-/">UK equities</a>.
+  </footer>
 </div>
-<footer>
-  Same methodology and pipeline structure as the companion
-  <a href="https://github.com/Sumanthputanemahesh/FEAR-AND-GREED-INDEX-UK">UK Fear &amp; Greed Index</a>,
-  adapted for Indian markets — see
-  <a href="https://github.com/Sumanthputanemahesh/FEAR-AND-GREED-INDEX-INDIA">source &amp; methodology notes</a>
-  for exact data sources and which components are currently included.
-  Styled after CNN Business's Fear &amp; Greed Index. Not investment advice.
-</footer>
 
 <script>
+"use strict";
+
+/* ============================================================
+   CONFIG — the only block that differs between markets
+   ============================================================ */
+const CONFIG = {
+  market: "India",
+  indexLabel: "Nifty 50",
+  priceKey: "nifty_close",
+  latestUrl: "data/latest.json",
+  coreUrl: "data/india_fgi_core.csv",
+  extendedUrl: "data/india_fgi_extended.csv",
+  priceUrl: "data/yf_raw/nifty50.csv",
+  repoUrl: "https://github.com/Sumanthputanemahesh/FEAR-AND-GREED-INDEX-INDIA",
+  components: [
+    { key: "momentum",      name: "Market Momentum",   desc: "Where the index sits against its own 125-day moving average. Persistently above trend reads as greed; below, as fear." },
+    { key: "volatility",    name: "Volatility",        desc: "India VIX, inverted — calm, low-volatility markets read as greed, turbulent ones as fear." },
+    { key: "strength",      name: "Price Strength",    desc: "The share of constituents making fresh 252-day highs versus lows. A market where strength is narrow reads as fear." },
+    { key: "breadth",       name: "Market Breadth",    desc: "Net advancing versus declining constituents, smoothed over 10 days — a read on how broadly a move is shared." },
+    { key: "safe_haven",    name: "Safe Haven Demand", desc: "Equity returns relative to a gilt ETF over 20 days. Capital rotating into government bonds signals fear." },
+    { key: "put_call",      name: "Put/Call Ratio",    desc: "Nifty index-options positioning from NSE's own bhavcopy, inverted — a rise in put buying relative to calls signals hedging against a fall, i.e. fear." },
+  ],
+};
+
+/* ============================================================
+   SHARED ENGINE (identical across markets)
+   ============================================================ */
 const ZONES = [
-  { lo: 0,  hi: 25,  key: 'Extreme Fear',  color: 'var(--extreme-fear)' },
-  { lo: 25, hi: 45,  key: 'Fear',          color: 'var(--fear)' },
-  { lo: 45, hi: 55,  key: 'Neutral',       color: 'var(--neutral)' },
-  { lo: 55, hi: 75,  key: 'Greed',         color: 'var(--greed)' },
-  { lo: 75, hi: 100, key: 'Extreme Greed', color: 'var(--extreme-greed)' },
+  { lo: 0,  hi: 25,  key: "Extreme Fear",  cssvar: "--extreme-fear" },
+  { lo: 25, hi: 45,  key: "Fear",          cssvar: "--fear" },
+  { lo: 45, hi: 55,  key: "Neutral",       cssvar: "--neutral" },
+  { lo: 55, hi: 75,  key: "Greed",         cssvar: "--greed" },
+  { lo: 75, hi: 100, key: "Extreme Greed", cssvar: "--extreme-greed" },
 ];
-function zoneClass(z) { return 'zonecolor-' + (z || '').replace(/\s+/g, '-'); }
 function zoneOf(score) {
-  if (score === null || score === undefined) return null;
+  if (score === null || score === undefined || isNaN(score)) return null;
   return ZONES.find(z => score <= z.hi) || ZONES[ZONES.length - 1];
 }
+function zoneColor(key) {
+  const z = ZONES.find(z => z.key === key);
+  return z ? getComputedStyle(document.documentElement).getPropertyValue(z.cssvar).trim() : "#888";
+}
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isDark = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 
-function buildGaugeSVG(score) {
-  const cx = 250, cy = 260, r = 205, bandW = 62;
-  const toXY = (deg, rad_) => {
-    const rad = (deg * Math.PI) / 180;
-    return [cx + rad_ * Math.cos(rad), cy - rad_ * Math.sin(rad)];
-  };
-  const scoreToDeg = (s) => 180 - (s / 100) * 180;
-  const currentZone = zoneOf(score);
-  const zoneColorVar = {
-    'Extreme Fear': '--extreme-fear', 'Fear': '--fear', 'Neutral': '--neutral',
-    'Greed': '--greed', 'Extreme Greed': '--extreme-greed',
-  };
-
-  // Full grey base band (the "unhighlighted" track, CNN style).
-  // Split into two 90deg quarter-arcs — a single 180deg arc has ambiguous
-  // sweep/large-arc flags and can render as the wrong (off-screen) semicircle.
-  const [gx1, gy1] = toXY(180, r);
-  const [gxMid, gyMid] = toXY(90, r);
-  const [gx2, gy2] = toXY(0, r);
-  let arcs = `<path d="M ${gx1} ${gy1} A ${r} ${r} 0 0 1 ${gxMid} ${gyMid} A ${r} ${r} 0 0 1 ${gx2} ${gy2}"
-               stroke="var(--gauge-track)" stroke-width="${bandW}" fill="none" />`;
-
-  // Highlighted wedge for the current zone only, drawn as a filled sector (not just a stroked arc)
-  // so it gets a crisp bordered edge like CNN's screenshot.
-  if (currentZone) {
-    const rOuter = r + bandW / 2, rInner = r - bandW / 2;
-    const startDeg = scoreToDeg(currentZone.lo);
-    const endDeg = scoreToDeg(currentZone.hi);
-    const [ox1, oy1] = toXY(startDeg, rOuter);
-    const [ox2, oy2] = toXY(endDeg, rOuter);
-    const [ix2, iy2] = toXY(endDeg, rInner);
-    const [ix1, iy1] = toXY(startDeg, rInner);
-    const sweep = 0;
-    arcs += `<path d="M ${ox1} ${oy1} A ${rOuter} ${rOuter} 0 0 ${sweep} ${ox2} ${oy2}
-                       L ${ix2} ${iy2} A ${rInner} ${rInner} 0 0 ${1 - sweep} ${ix1} ${iy1} Z"
-              fill="var(${zoneColorVar[currentZone.key]})" fill-opacity="0.9"
-              stroke="var(${zoneColorVar[currentZone.key]})" stroke-width="1.5" />`;
-  }
-
-  // Tick marks: small dots every 5 units along the band's outer edge
-  let ticks = '';
-  for (let s = 0; s <= 100; s += 5) {
-    const deg = scoreToDeg(s);
-    const [tx, ty] = toXY(deg, r + bandW / 2 + 4);
-    const major = s % 25 === 0;
-    ticks += `<circle cx="${tx}" cy="${ty}" r="${major ? 2.2 : 1.2}" fill="var(--sub)" opacity="${major ? 0.9 : 0.5}" />`;
-  }
-
-  // Numeric axis labels at 0/25/50/75/100, sitting just inside the band
-  let axisLabels = '';
-  [0, 25, 50, 75, 100].forEach(s => {
-    const deg = scoreToDeg(s);
-    const [lx, ly] = toXY(deg, r - bandW / 2 - 16);
-    axisLabels += `<text x="${lx}" y="${ly + 4}" font-size="13" fill="var(--sub)" text-anchor="middle" font-weight="500">${s}</text>`;
+function parseCSV(text) {
+  const lines = text.trim().split("\n");
+  const headers = lines[0].split(",");
+  // The pipeline's CSV export sometimes leaves the date/index column's header
+  // blank (a pandas quirk when the index has no explicit .name set) — treat
+  // an empty first header as "Date" so every CSV parses consistently
+  // regardless of which script produced it.
+  if (headers[0] === "") headers[0] = "Date";
+  return lines.slice(1).map(line => {
+    const cells = line.split(",");
+    const row = {};
+    headers.forEach((h, i) => { row[h] = cells[i]; });
+    return row;
   });
+}
 
-  // Zone name labels, angled tangentially along the outside of the band (CNN style)
-  const zoneLabelDefs = [
-    { t: 'EXTREME FEAR', key: 'Extreme Fear', mid: 12.5 }, { t: 'FEAR', key: 'Fear', mid: 35 },
-    { t: 'NEUTRAL', key: 'Neutral', mid: 50 }, { t: 'GREED', key: 'Greed', mid: 65 },
-    { t: 'EXTREME GREED', key: 'Extreme Greed', mid: 87.5 },
-  ];
-  let zoneLabels = '';
-  zoneLabelDefs.forEach(l => {
-    const deg = scoreToDeg(l.mid);
-    const [lx, ly] = toXY(deg, r + bandW / 2 + 22);
-    const tangentAngle = deg - 90; // rotate so text runs tangent to the arc
-    const active = currentZone && currentZone.key === l.key;
-    const fill = active ? `var(${zoneColorVar[l.key]})` : 'var(--sub)';
-    zoneLabels += `<text x="${lx}" y="${ly}" font-size="12.5" fill="${fill}" text-anchor="middle"
-                     font-weight="800" letter-spacing="0.2"
-                     transform="rotate(${-tangentAngle} ${lx} ${ly})">${l.t}</text>`;
-  });
-
-  // Needle: black, thick, rounded — pivots from a housing circle at the base
-  let needle = '';
-  if (score !== null && score !== undefined) {
-    const deg = scoreToDeg(score);
-    const [nx, ny] = toXY(deg, r - bandW / 2 - 6);
-    needle = `<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="var(--needle)" stroke-width="6" stroke-linecap="round" />
-               <circle cx="${cx}" cy="${cy}" r="11" fill="var(--needle)" />`;
+/* ---- eased needle / number animation ---- */
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function animateValue(from, to, duration, onFrame, onDone) {
+  if (prefersReducedMotion() || duration === 0) { onFrame(to); if (onDone) onDone(); return; }
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = easeOutCubic(t);
+    onFrame(from + (to - from) * eased);
+    if (t < 1) requestAnimationFrame(tick); else if (onDone) onDone();
   }
+  requestAnimationFrame(tick);
+}
 
-  return `<svg id="gauge" viewBox="-20 0 540 300" xmlns="http://www.w3.org/2000/svg">
-    ${arcs}
-    ${ticks}
-    ${zoneLabels}
-    ${axisLabels}
-    ${needle}
+/* ============================================================
+   GAUGE (hand-built SVG)
+   ============================================================ */
+let currentGaugeScore = null;
+function buildGaugeSVG() {
+  const cx = 200, cy = 190, r = 158, trackW = 3;
+  return `<svg id="gauge" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Fear and greed gauge">
+    <g id="gauge-track"></g>
+    <g id="gauge-ticks"></g>
+    <g id="gauge-zone-labels" style="font-family:${CONFIG.__sansStack}; font-size:9.5px; letter-spacing:0.06em;"></g>
+    <line id="gauge-needle" x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy - r + 30}" stroke="currentColor" stroke-width="1.4" />
+    <circle id="gauge-pivot" cx="${cx}" cy="${cy}" r="3.5" fill="currentColor" />
   </svg>`;
 }
+const GAUGE = { cx: 200, cy: 190, r: 158 };
+function gaugeXY(deg, rad) {
+  const rr = (deg * Math.PI) / 180;
+  return [GAUGE.cx + rad * Math.cos(rr), GAUGE.cy - rad * Math.sin(rr)];
+}
+function scoreToDeg(s) { return 180 - (s / 100) * 180; }
 
-async function main() {
-  const content = document.getElementById('content');
-  try {
-    const [latestRes, historyRes, priceRes] = await Promise.all([
-      fetch('data/latest.json?t=' + Date.now()),
-      fetch('data/india_fgi_core.csv?t=' + Date.now()),
-      fetch('data/yf_raw/nifty50.csv?t=' + Date.now())
-    ]);
-    if (!latestRes.ok) throw new Error('latest.json not found yet — first Action run pending');
-    const latest = await latestRes.json();
-    const csvText = historyRes.ok ? await historyRes.text() : '';
-    const priceCsvText = priceRes.ok ? await priceRes.text() : '';
+function initGaugeStatic() {
+  const track = document.getElementById("gauge-track");
+  const ticks = document.getElementById("gauge-ticks");
+  const labels = document.getElementById("gauge-zone-labels");
+  let trackHtml = "";
+  ZONES.forEach(z => {
+    const c1 = gaugeXY(scoreToDeg(z.lo), GAUGE.r);
+    const c2 = gaugeXY(scoreToDeg(z.hi), GAUGE.r);
+    trackHtml += `<path d="M ${c1[0]} ${c1[1]} A ${GAUGE.r} ${GAUGE.r} 0 0 0 ${c2[0]} ${c2[1]}"
+      stroke="var(${z.cssvar})" stroke-width="3" fill="none" stroke-opacity="0.9" data-zone="${z.key}"/>`;
+  });
+  track.innerHTML = trackHtml;
 
-    const zc = zoneClass(latest.zone);
-    const tl = latest.timeline || {};
-    const tlItems = [
-      ['Now', tl.now], ['Previous close', tl.prev_close],
-      ['1 week ago', tl.week_ago], ['1 month ago', tl.month_ago], ['1 year ago', tl.year_ago],
-    ];
+  let tickHtml = "";
+  for (let s = 0; s <= 100; s += 5) {
+    const deg = scoreToDeg(s);
+    const major = s % 25 === 0;
+    const p1 = gaugeXY(deg, GAUGE.r + 8);
+    const p2 = gaugeXY(deg, GAUGE.r + (major ? 15 : 11));
+    tickHtml += `<line x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}"
+      stroke="var(--mute)" stroke-width="${major ? 1.2 : 0.7}" opacity="${major ? 0.8 : 0.4}"/>`;
+    if (major) {
+      const lp = gaugeXY(deg, GAUGE.r + 27);
+      tickHtml += `<text x="${lp[0]}" y="${lp[1] + 3}" text-anchor="middle" fill="var(--mute)" font-size="10">${s}</text>`;
+    }
+  }
+  ticks.innerHTML = tickHtml;
 
-    content.innerHTML = `
-      <div class="gauge-section">
-        <div class="gauge-title">Fear &amp; Greed Index</div>
-        ${buildGaugeSVG(latest.fgi)}
-        <div class="gauge-score-num ${zc}">${latest.fgi.toFixed(0)}</div>
-        <div class="gauge-zone-label ${zc}">${latest.zone}</div>
-        <div class="gauge-date">as of ${latest.date}${latest.nifty_close ? ' · Nifty 50 ' + latest.nifty_close.toFixed(1) : ''} · ${latest.n_components || ''} components</div>
+  const labelDefs = [
+    { t: "EXTREME FEAR", mid: 12.5 }, { t: "FEAR", mid: 35 }, { t: "NEUTRAL", mid: 50 },
+    { t: "GREED", mid: 65 }, { t: "EXTREME GREED", mid: 87.5 },
+  ];
+  let labelHtml = "";
+  labelDefs.forEach(l => {
+    const deg = scoreToDeg(l.mid);
+    const p = gaugeXY(deg, GAUGE.r + 42);
+    const tangent = deg - 90;
+    const anchor = "middle";
+    labelHtml += `<text data-zonelabel="${l.t}" x="${p[0]}" y="${p[1]}" text-anchor="${anchor}" fill="var(--mute)"
+      transform="rotate(${-tangent} ${p[0]} ${p[1]})">${l.t}</text>`;
+  });
+  labels.innerHTML = labelHtml;
+}
+
+function setGaugeScoreImmediate(score) {
+  currentGaugeScore = score;
+  const needle = document.getElementById("gauge-needle");
+  if (!needle) return;
+  const deg = scoreToDeg(score);
+  const tip = gaugeXY(deg, GAUGE.r - 12);
+  needle.setAttribute("x2", tip[0]);
+  needle.setAttribute("y2", tip[1]);
+  const z = zoneOf(score);
+  document.querySelectorAll("[data-zonelabel]").forEach(el => {
+    el.setAttribute("fill", el.dataset.zonelabel === (z ? z.key.toUpperCase() : "") ? `var(${z.cssvar})` : "var(--mute)");
+    el.style.fontWeight = el.dataset.zonelabel === (z ? z.key.toUpperCase() : "") ? "700" : "500";
+  });
+}
+function animateGaugeTo(score, duration) {
+  const from = currentGaugeScore === null ? score : currentGaugeScore;
+  animateValue(from, score, duration, (v) => setGaugeScoreImmediate(v));
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let LATEST = null;
+let CORE_ROWS = [];       // parsed core.csv (long history, subset of components)
+let EXT_ROWS = [];        // parsed extended.csv (full component set, shorter)
+let PRICE_ROWS = [];      // {date, price}
+let displayMode = "live"; // "live" | "scrub"
+let scrubIndex = null;
+let fgiChart = null, priceChart = null;
+let currentRangeDays = null; // null = MAX
+
+function fmtScore(v) { return v === null || v === undefined || isNaN(v) ? "—" : v.toFixed(0); }
+function fmtDate(d) {
+  if (!d) return "";
+  const dt = new Date(d + "T00:00:00");
+  return dt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+/* ---- render hero + hairline elements for a given "state row" ---- */
+function renderHeroFromRow(row, sourceLabel) {
+  const score = row.composite;
+  const zone = row.zone;
+  const z = zoneOf(score);
+  const zc = z ? `var(${z.cssvar})` : "var(--ink)";
+
+  document.getElementById("score-num").textContent = fmtScore(score);
+  document.getElementById("score-num").style.color = zc;
+  document.getElementById("score-zone").textContent = zone || "—";
+  document.getElementById("score-zone").style.color = zc;
+  document.getElementById("score-date").textContent = fmtDate(row.date);
+  const liveTag = document.getElementById("score-live-tag");
+  if (displayMode === "scrub") {
+    liveTag.textContent = "Historical reading — release to return to today";
+    liveTag.classList.add("scrubbing");
+  } else {
+    liveTag.textContent = `Updated ${LATEST ? new Date(LATEST.updated_at).toLocaleString("en-GB", {hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'}) : ""}`;
+    liveTag.classList.remove("scrubbing");
+  }
+
+  animateGaugeTo(score, displayMode === "scrub" ? 120 : 420);
+
+  const priceVal = row.price;
+  document.getElementById("gauge-price").innerHTML = priceVal
+    ? `${CONFIG.indexLabel} <b>${Number(priceVal).toLocaleString(undefined, {maximumFractionDigits:1})}</b>`
+    : "";
+
+  renderComponents(row);
+}
+
+/* ---- components list ---- */
+function componentSparkPath(values, w, h) {
+  const valid = values.filter(v => v !== null && !isNaN(v));
+  if (valid.length < 2) return "";
+  const min = Math.min(...valid), max = Math.max(...valid);
+  const span = (max - min) || 1;
+  const step = w / (values.length - 1);
+  let d = "";
+  values.forEach((v, i) => {
+    if (v === null || isNaN(v)) return;
+    const x = i * step;
+    const y = h - ((v - min) / span) * h;
+    d += (d === "" ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
+  });
+  return d;
+}
+
+function renderComponents(row) {
+  const list = document.getElementById("comp-list");
+  const wasExpanded = new Set(
+    Array.from(list.querySelectorAll('.comp-row[aria-expanded="true"]')).map(el => el.dataset.key)
+  );
+  list.innerHTML = "";
+
+  CONFIG.components.forEach(comp => {
+    const v = row[comp.key];
+    const inCore = v !== undefined && v !== null && !isNaN(v);
+    const z = inCore ? zoneOf(v) : null;
+    const zc = z ? `var(${z.cssvar})` : "var(--mute)";
+
+    const rowEl = document.createElement("button");
+    rowEl.className = "comp-row";
+    rowEl.type = "button";
+    rowEl.dataset.key = comp.key;
+    rowEl.setAttribute("aria-expanded", wasExpanded.has(comp.key) ? "true" : "false");
+    rowEl.setAttribute("role", "listitem");
+
+    const sparkVals = EXT_ROWS.map(r => r[comp.key] !== undefined ? parseFloat(r[comp.key]) : null);
+    const sparkPath = componentSparkPath(sparkVals.slice(-90), 100, 24);
+
+    rowEl.innerHTML = `
+      <div class="comp-row-top">
+        <span class="comp-chevron" aria-hidden="true"></span>
+        <span class="comp-name">${comp.name}</span>
+        <span class="comp-track"><span class="comp-fill" style="width:${inCore ? v : 0}%; background:${zc}"></span></span>
+        <span class="comp-readout">${inCore ? v.toFixed(0) : "—"}<span class="z" style="color:${zc}">${inCore ? z.key : "not in range"}</span></span>
+        <svg class="comp-row-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
+          <path d="${sparkPath}" fill="none" stroke="var(--mute)" stroke-width="1.1" vector-effect="non-scaling-stroke"/>
+        </svg>
       </div>
-
-      <div class="timeline" id="timeline"></div>
-
-      <div class="section-label">What the individual components are showing</div>
-      <div class="components" id="comp-grid"></div>
-
-      <div class="section-label">Index history vs. Nifty 50 price</div>
-      <div class="chart-card fgi"><canvas id="chart"></canvas></div>
-      <div class="chart-card price"><canvas id="priceChart"></canvas></div>
     `;
-
-    const tlEl = document.getElementById('timeline');
-    tlItems.forEach(([label, val]) => {
-      const z = zoneOf(val);
-      tlEl.innerHTML += `
-        <div class="tl-item">
-          <div class="tl-label">${label}</div>
-          <div class="tl-val ${z ? zoneClass(z.key) : ''}">${val === null || val === undefined ? '—' : val.toFixed(0)}</div>
-          <div class="tl-zone ${z ? zoneClass(z.key) : ''}">${z ? z.key : ''}</div>
-        </div>`;
+    rowEl.addEventListener("click", () => {
+      const open = rowEl.getAttribute("aria-expanded") === "true";
+      rowEl.setAttribute("aria-expanded", open ? "false" : "true");
     });
 
-    const compGrid = document.getElementById('comp-grid');
-    const compLabels = {
-      momentum: 'Market Momentum', volatility: 'Market Volatility', strength: 'Price Strength',
-      breadth: 'Market Breadth', safe_haven: 'Safe Haven Demand', put_call: 'Put and Call Options'
-    };
-    for (const [key, label] of Object.entries(compLabels)) {
-      const v = latest.components[key];
-      if (v === undefined) continue;
-      const z = zoneOf(v);
-      compGrid.innerHTML += `
-        <div class="comp-row">
-          <div class="comp-name">${label}</div>
-          <div class="comp-track"><div class="comp-marker" style="left:${v}%"></div></div>
-          <div class="comp-readout">${v === null ? '—' : v.toFixed(0)}<span class="z ${z ? zoneClass(z.key) : ''}">${z ? z.key : ''}</span></div>
-        </div>`;
-    }
+    const detail = document.createElement("div");
+    detail.className = "comp-detail";
+    const bigSparkPath = componentSparkPath(sparkVals, 600, 50);
+    detail.innerHTML = `
+      <div class="comp-detail-inner">
+        <p class="comp-desc">${comp.desc}</p>
+        <svg class="comp-big-spark" viewBox="0 0 600 50" preserveAspectRatio="none" aria-hidden="true">
+          <path d="${bigSparkPath}" fill="none" stroke="${zc}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+        </svg>
+      </div>
+    `;
 
-    if (csvText) {
-      const rows = csvText.trim().split('\n').slice(1).map(r => r.split(','));
-      const dates = rows.map(r => r[0]);
-      const scores = rows.map(r => parseFloat(r[r.length - 2]));
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const axisColor = isDark ? '#9a9aa0' : '#6b6b70';
-      const gridColor = isDark ? '#2c2c30' : '#eee';
-
-      // 30-day simple moving average of the composite score
-      const ma30 = scores.map((_, i) => {
-        if (i < 29) return null;
-        let sum = 0;
-        for (let j = i - 29; j <= i; j++) sum += scores[j];
-        return sum / 30;
-      });
-
-      const zoneRGB = {
-        'Extreme Fear': '163,18,26', 'Fear': '232,99,44', 'Neutral': '242,201,76',
-        'Greed': '154,203,82', 'Extreme Greed': '46,139,61',
-      };
-      const zoneAlpha = { 'Extreme Fear': 0.28, 'Fear': 0.20, 'Neutral': 0.16, 'Greed': 0.20, 'Extreme Greed': 0.28 };
-
-      // Background zone-band plugin: shades the 5 zone rows across the whole plot area
-      const zoneBandsPlugin = {
-        id: 'zoneBands',
-        beforeDraw(chart) {
-          const { ctx, chartArea, scales } = chart;
-          if (!chartArea) return;
-          ctx.save();
-          ZONES.forEach(z => {
-            const yTop = scales.y.getPixelForValue(z.hi);
-            const yBot = scales.y.getPixelForValue(z.lo);
-            ctx.fillStyle = `rgba(${zoneRGB[z.key]},${zoneAlpha[z.key]})`;
-            ctx.fillRect(chartArea.left, yTop, chartArea.right - chartArea.left, yBot - yTop);
-          });
-          ctx.restore();
-        }
-      };
-
-      new Chart(document.getElementById('chart'), {
-        type: 'line',
-        data: {
-          labels: dates,
-          datasets: [
-            {
-              label: 'India FGI',
-              data: scores,
-              borderWidth: 1,
-              pointRadius: 0,
-              tension: 0,
-              segment: {
-                borderColor: (ctx) => {
-                  const v = ctx.p1.parsed.y;
-                  const z = zoneOf(v);
-                  return z ? `rgb(${zoneRGB[z.key]})` : '#888';
-                }
-              }
-            },
-            {
-              label: '30d MA',
-              data: ma30,
-              borderColor: isDark ? '#ffffff' : '#1a1a1a',
-              borderWidth: 2,
-              pointRadius: 0,
-              tension: 0.1,
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          interaction: { mode: 'index', intersect: false },
-          scales: {
-            x: { type: 'time', time: { unit: 'year' }, ticks: { color: axisColor }, grid: { display: false } },
-            y: { min: 0, max: 100, ticks: { color: axisColor }, grid: { color: gridColor } }
-          },
-          plugins: {
-            legend: { display: true, labels: { color: axisColor, boxHeight: 2 }, position: 'top', align: 'end' },
-            tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y?.toFixed(1)}` } }
-          }
-        },
-        plugins: [zoneBandsPlugin]
-      });
-
-      if (priceCsvText) {
-        const prows = priceCsvText.trim().split('\n').slice(1).map(r => r.split(','));
-        const firstFgiDate = dates[0];
-        const pFiltered = prows.filter(r => r[0] >= firstFgiDate);
-        const pDates = pFiltered.map(r => r[0]);
-        const pPrices = pFiltered.map(r => parseFloat(r[1]));
-        const base = pPrices.find(v => !isNaN(v));
-        const rebased = pPrices.map(v => (isNaN(v) ? null : (v / base) * 100));
-
-        new Chart(document.getElementById('priceChart'), {
-          type: 'line',
-          data: {
-            labels: pDates,
-            datasets: [{
-              label: 'Nifty 50 (rebased to 100)',
-              data: rebased,
-              borderColor: '#4da6ff',
-              borderWidth: 1.3,
-              pointRadius: 0,
-              tension: 0.05,
-            }]
-          },
-          options: {
-            responsive: true,
-            interaction: { mode: 'index', intersect: false },
-            scales: {
-              x: { type: 'time', time: { unit: 'year' }, ticks: { color: axisColor }, grid: { display: false } },
-              y: { ticks: { color: axisColor }, grid: { color: gridColor } }
-            },
-            plugins: {
-              legend: { display: true, labels: { color: axisColor, boxHeight: 2 }, position: 'top', align: 'end' },
-              tooltip: { callbacks: { label: (c) => `Nifty 50: ${c.parsed.y?.toFixed(1)}` } }
-            }
-          }
-        });
-      }
-    }
-  } catch (e) {
-    content.innerHTML = `<div class="err">${e.message}</div>`;
-  }
+    list.appendChild(rowEl);
+    list.appendChild(detail);
+  });
 }
-main();
+
+/* ---- timeline strip ---- */
+function renderTimeline() {
+  const tl = LATEST.timeline || {};
+  const items = [
+    ["Now", tl.now], ["Previous close", tl.prev_close],
+    ["1 week ago", tl.week_ago], ["1 month ago", tl.month_ago], ["1 year ago", tl.year_ago],
+  ];
+  const el = document.getElementById("timeline");
+  el.innerHTML = items.map(([label, val]) => {
+    const z = zoneOf(val);
+    const zc = z ? `var(${z.cssvar})` : "var(--ink)";
+    return `<div class="tl-item">
+      <div class="tl-label">${label}</div>
+      <div class="tl-val tnum" style="color:${zc}">${fmtScore(val)}</div>
+      <div class="tl-zone">${z ? z.key : "—"}</div>
+    </div>`;
+  }).join("");
+}
+
+/* ============================================================
+   CHARTS
+   ============================================================ */
+const RANGES = [
+  { label: "1M", days: 21 }, { label: "6M", days: 126 }, { label: "1Y", days: 252 },
+  { label: "5Y", days: 1260 }, { label: "MAX", days: null },
+];
+
+function sliceByRange(rows, days) {
+  if (days === null) return rows;
+  return rows.slice(-days);
+}
+
+function buildCharts() {
+  const dark = isDark();
+  const axisColor = dark ? "#8c8574" : "#837c6d";
+  const gridColor = dark ? "rgba(236,231,220,0.08)" : "rgba(23,20,15,0.07)";
+
+  const zoneRGB = {
+    "Extreme Fear": "158,42,43", "Fear": "192,112,58", "Neutral": "166,146,79",
+    "Greed": "92,124,63", "Extreme Greed": "53,89,47",
+  };
+
+  const zoneBandsPlugin = {
+    id: "zoneBands",
+    beforeDraw(chart) {
+      const { ctx, chartArea, scales } = chart;
+      if (!chartArea) return;
+      ctx.save();
+      ZONES.forEach(z => {
+        const yTop = scales.y.getPixelForValue(z.hi);
+        const yBot = scales.y.getPixelForValue(z.lo);
+        ctx.fillStyle = `rgba(${zoneRGB[z.key]},0.06)`;
+        ctx.fillRect(chartArea.left, yTop, chartArea.right - chartArea.left, yBot - yTop);
+      });
+      ctx.restore();
+    }
+  };
+
+  const scrubLinePlugin = {
+    id: "scrubLine",
+    afterDraw(chart) {
+      if (window.__scrubPixelX === null || window.__scrubPixelX === undefined) return;
+      const { ctx, chartArea } = chart;
+      const x = window.__scrubPixelX;
+      if (x < chartArea.left || x > chartArea.right) return;
+      ctx.save();
+      ctx.strokeStyle = axisColor;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(x, chartArea.top);
+      ctx.lineTo(x, chartArea.bottom);
+      ctx.stroke();
+      ctx.restore();
+    }
+  };
+
+  fgiChart = new Chart(document.getElementById("chart-fgi"), {
+    type: "line",
+    data: { labels: [], datasets: [
+      {
+        label: "Composite", data: [], borderWidth: 1.3, pointRadius: 0, tension: 0,
+        segment: { borderColor: (ctx) => {
+          const v = ctx.p1.parsed.y; const z = zoneOf(v);
+          return z ? `rgb(${zoneRGB[z.key]})` : axisColor;
+        }}
+      }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: prefersReducedMotion() ? 0 : 380 },
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        x: { type: "time", time: { unit: "month" }, ticks: { color: axisColor, font: { size: 10 }, maxRotation: 0 }, grid: { display: false }, border: { color: gridColor } },
+        y: { min: 0, max: 100, ticks: { color: axisColor, font: { size: 10 }, stepSize: 25 }, grid: { color: gridColor }, border: { display: false } },
+      },
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      events: ["mousemove", "mouseout", "touchstart", "touchmove"],
+    },
+    plugins: [zoneBandsPlugin, scrubLinePlugin],
+  });
+
+  priceChart = new Chart(document.getElementById("chart-price"), {
+    type: "line",
+    data: { labels: [], datasets: [
+      { label: CONFIG.indexLabel, data: [], borderColor: dark ? "#c4bcac" : "#4a453c", borderWidth: 1.2, pointRadius: 0, tension: 0.05 }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: prefersReducedMotion() ? 0 : 380 },
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        x: { type: "time", time: { unit: "month" }, ticks: { color: axisColor, font: { size: 10 }, maxRotation: 0 }, grid: { display: false }, border: { color: gridColor } },
+        y: { ticks: { color: axisColor, font: { size: 10 } }, grid: { color: gridColor }, border: { display: false } },
+      },
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      events: ["mousemove", "mouseout", "touchstart", "touchmove"],
+    },
+    plugins: [scrubLinePlugin],
+  });
+}
+
+function updateChartsForRange(days) {
+  currentRangeDays = days;
+  const coreSlice = sliceByRange(CORE_ROWS, days);
+  const dates = coreSlice.map(r => r.date);
+  const scores = coreSlice.map(r => r.composite);
+  fgiChart.data.labels = dates;
+  fgiChart.data.datasets[0].data = scores;
+  fgiChart.update();
+
+  const firstDate = dates[0];
+  const priceSlice = PRICE_ROWS.filter(r => r.date >= firstDate);
+  const base = priceSlice.find(r => !isNaN(r.price));
+  const rebased = priceSlice.map(r => (isNaN(r.price) ? null : (r.price / base.price) * 100));
+  priceChart.data.labels = priceSlice.map(r => r.date);
+  priceChart.data.datasets[0].data = rebased;
+  priceChart.update();
+
+  document.getElementById("scrub-range").max = coreSlice.length - 1;
+  document.getElementById("scrub-range").value = coreSlice.length - 1;
+
+  document.querySelectorAll(".range-btn").forEach(btn => {
+    btn.setAttribute("aria-pressed", Number(btn.dataset.days || 0) === (days || 0) && (days === null) === (btn.dataset.days === "null") ? "true" : "false");
+  });
+}
+
+function buildRangeToolbar() {
+  const toolbar = document.getElementById("range-toolbar");
+  toolbar.innerHTML = RANGES.map(r =>
+    `<button class="range-btn" type="button" data-days="${r.days === null ? "null" : r.days}" aria-pressed="${r.days === null ? "true" : "false"}">${r.label}</button>`
+  ).join("");
+  toolbar.querySelectorAll(".range-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      toolbar.querySelectorAll(".range-btn").forEach(b => b.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+      const d = btn.dataset.days === "null" ? null : Number(btn.dataset.days);
+      updateChartsForRange(d);
+    });
+  });
+}
+
+/* ---- scrub interaction ---- */
+function coreSliceForCurrentRange() { return sliceByRange(CORE_ROWS, currentRangeDays); }
+
+function rowFromCoreIndex(idx) {
+  const slice = coreSliceForCurrentRange();
+  const r = slice[idx];
+  if (!r) return null;
+  const priceRow = PRICE_ROWS.find(p => p.date === r.date);
+  return {
+    date: r.date, composite: r.composite, zone: r.zone,
+    momentum: r.momentum, volatility: r.volatility, strength: r.strength,
+    breadth: r.breadth, safe_haven: r.safe_haven,
+    put_call: undefined, // CORE doesn't carry this historically
+    price: priceRow ? priceRow.price : null,
+  };
+}
+
+function liveRow() {
+  return {
+    date: LATEST.date, composite: LATEST.fgi, zone: LATEST.zone,
+    ...LATEST.components,
+    price: LATEST[CONFIG.priceKey],
+  };
+}
+
+function enterScrub(idx) {
+  displayMode = "scrub"; scrubIndex = idx;
+  const row = rowFromCoreIndex(idx);
+  if (!row) return;
+  renderHeroFromRow(row, "scrub");
+  document.getElementById("scrub-range").value = idx;
+}
+function exitScrub() {
+  displayMode = "live"; scrubIndex = null;
+  window.__scrubPixelX = null;
+  renderHeroFromRow(liveRow(), "live");
+}
+
+function nearestIndexForPixel(chart, pixelX) {
+  const scale = chart.scales.x;
+  const slice = coreSliceForCurrentRange();
+  if (!slice.length) return null;
+  let closest = 0, closestDist = Infinity;
+  for (let i = 0; i < slice.length; i++) {
+    const px = scale.getPixelForValue(new Date(slice[i].date + "T00:00:00").getTime());
+    const dist = Math.abs(px - pixelX);
+    if (dist < closestDist) { closestDist = dist; closest = i; }
+  }
+  return closest;
+}
+
+function wireScrubEvents() {
+  const wrap = document.getElementById("chart-fgi-wrap");
+  const tip = document.getElementById("crosshair-tip");
+
+  function handleMove(clientX) {
+    const rect = wrap.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const idx = nearestIndexForPixel(fgiChart, x);
+    if (idx === null) return;
+    window.__scrubPixelX = fgiChart.scales.x.getPixelForValue(
+      new Date(coreSliceForCurrentRange()[idx].date + "T00:00:00").getTime()
+    );
+    fgiChart.draw(); priceChart.draw();
+    enterScrub(idx);
+
+    const row = coreSliceForCurrentRange()[idx];
+    tip.innerHTML = `<div class="ct-date">${fmtDate(row.date)}</div><b>${fmtScore(row.composite)}</b> · ${row.zone}`;
+    tip.style.left = (x) + "px";
+    tip.style.top = "0px";
+    tip.classList.add("show");
+  }
+
+  wrap.addEventListener("mousemove", (e) => handleMove(e.clientX));
+  wrap.addEventListener("mouseleave", () => {
+    tip.classList.remove("show");
+    window.__scrubPixelX = null;
+    fgiChart.draw(); priceChart.draw();
+    exitScrub();
+  });
+  wrap.addEventListener("touchmove", (e) => { handleMove(e.touches[0].clientX); }, { passive: true });
+  wrap.addEventListener("touchend", () => {
+    tip.classList.remove("show");
+    window.__scrubPixelX = null;
+    fgiChart.draw(); priceChart.draw();
+    exitScrub();
+  });
+
+  const rangeInput = document.getElementById("scrub-range");
+  rangeInput.addEventListener("input", () => {
+    const idx = Number(rangeInput.value);
+    enterScrub(idx);
+    const slice = coreSliceForCurrentRange();
+    window.__scrubPixelX = fgiChart.scales.x.getPixelForValue(new Date(slice[idx].date + "T00:00:00").getTime());
+    fgiChart.draw(); priceChart.draw();
+  });
+  rangeInput.addEventListener("blur", () => {
+    window.__scrubPixelX = null; fgiChart.draw(); priceChart.draw(); exitScrub();
+  });
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+async function boot() {
+  CONFIG.__sansStack = getComputedStyle(document.body).fontFamily;
+
+  const [latestRes, coreRes, extRes, priceRes] = await Promise.all([
+    fetch(CONFIG.latestUrl), fetch(CONFIG.coreUrl), fetch(CONFIG.extendedUrl), fetch(CONFIG.priceUrl),
+  ]);
+  LATEST = await latestRes.json();
+  const coreText = await coreRes.text();
+  const extText = await extRes.text();
+  const priceText = await priceRes.text();
+
+  CORE_ROWS = parseCSV(coreText).map(r => ({
+    date: r.Date, composite: parseFloat(r.composite), zone: r.zone,
+    momentum: parseFloat(r.momentum), volatility: parseFloat(r.volatility),
+    strength: parseFloat(r.strength), breadth: parseFloat(r.breadth), safe_haven: parseFloat(r.safe_haven),
+  })).filter(r => r.date && !isNaN(r.composite));
+
+  EXT_ROWS = parseCSV(extText).map(r => {
+    const row = { date: r.Date };
+    CONFIG.components.forEach(c => { if (r[c.key] !== undefined) row[c.key] = parseFloat(r[c.key]); });
+    return row;
+  }).filter(r => r.date);
+
+  const priceLines = priceText.trim().split("\n").slice(1);
+  PRICE_ROWS = priceLines.map(l => { const [d, p] = l.split(","); return { date: d, price: parseFloat(p) }; });
+
+  document.getElementById("mh-history").textContent = LATEST.history_days ?? CORE_ROWS.length;
+  document.getElementById("mh-components").textContent = LATEST.n_components ?? CONFIG.components.length;
+  document.getElementById("mh-updated").textContent = "as of " + fmtDate(LATEST.date);
+
+  document.getElementById("gauge-mount").innerHTML = buildGaugeSVG();
+  initGaugeStatic();
+
+  renderTimeline();
+  buildRangeToolbar();
+  buildCharts();
+  updateChartsForRange(null);
+  wireScrubEvents();
+
+  exitScrub();
+}
+
+boot().catch(err => {
+  document.querySelector(".hero-text").innerHTML =
+    `<p class="dek">Couldn't load today's reading (${err.message}). The data files may still be generating — try again shortly.</p>`;
+  console.error(err);
+});
 </script>
 </body>
 </html>
