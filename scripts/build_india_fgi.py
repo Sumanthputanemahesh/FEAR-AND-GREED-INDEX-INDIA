@@ -36,8 +36,8 @@ import yfinance as yf
 
 warnings.filterwarnings("ignore")
 
-BASE_DIR = Path(__file__).parent
-OUT_DIR = BASE_DIR / "data"
+BASE_DIR = Path(__file__).parent.parent
+OUT_DIR = BASE_DIR / "docs" / "data"
 RAW_DIR = OUT_DIR / "yf_raw"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 RAW_DIR.mkdir(parents=True, exist_ok=True)

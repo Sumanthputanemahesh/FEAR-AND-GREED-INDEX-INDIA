@@ -1,0 +1,26 @@
+{
+  "date": "2026-07-23",
+  "fgi": 47.61,
+  "zone": "Neutral",
+  "source": "extended",
+  "n_components": 6,
+  "nifty_close": 23869.599609375,
+  "components": {
+    "momentum": 33.9,
+    "volatility": 34.3,
+    "strength": 43.8,
+    "breadth": 60.2,
+    "safe_haven": 33.1,
+    "put_call": 80.5
+  },
+  "timeline": {
+    "now": 47.61,
+    "prev_close": 52.32,
+    "week_ago": 42.96,
+    "month_ago": 35.86,
+    "year_ago": 63.59
+  },
+  "updated_at": "2026-07-26T09:20:16+00:00",
+  "history_days": 275,
+  "core_history_days": 1475
+}

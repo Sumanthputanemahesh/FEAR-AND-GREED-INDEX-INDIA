@@ -5,19 +5,21 @@ on:
     # 12:30 UTC = 18:00 IST, comfortably after NSE close (15:30 IST) and after
     # the F&O bhavcopy is published. Cron is always UTC on GitHub Actions.
     - cron: "30 12 * * 1-5"
-  workflow_dispatch:        # lets you trigger a run by hand from the Actions tab
+  workflow_dispatch: {}       # lets you trigger a run by hand from the Actions tab
 
 permissions:
-  contents: write           # needed to commit the refreshed data back
+  contents: write             # needed to commit the refreshed data back
+  pages: write
+  id-token: write
 
 concurrency:
-  group: fgi-update
+  group: "pages"
   cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45     # first run backfills PCR and is slow
+    timeout-minutes: 45       # first run backfills PCR and is slow
 
     steps:
       - name: Checkout
@@ -29,18 +31,19 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install yfinance pandas numpy requests
+        run: pip install -r requirements.txt
 
       - name: Build index
-        run: python build_india_fgi.py
+        run: python scripts/build_india_fgi.py
+
+      - name: Publish latest.json for dashboard
+        run: python scripts/publish_latest.py
 
       - name: Commit updated data
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/
+          git add docs/data/
           if git diff --staged --quiet; then
             echo "No data changes to commit."
           else
@@ -53,5 +56,17 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-report
-          path: data/build_report.json
+          path: docs/data/build_report.json
           if-no-files-found: warn
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
