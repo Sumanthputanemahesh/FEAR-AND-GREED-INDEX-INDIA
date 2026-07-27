@@ -2,9 +2,11 @@ name: Update India Fear & Greed Index
 
 on:
   schedule:
-    # 12:30 UTC = 18:00 IST, comfortably after NSE close (15:30 IST) and after
-    # the F&O bhavcopy is published. Cron is always UTC on GitHub Actions.
-    - cron: "30 12 * * 1-5"
+    # 12:30 UTC = 18:00 IST, every day — comfortably after NSE close (15:30 IST) and
+    # after the F&O bhavcopy is published. Cron is always UTC on GitHub Actions.
+    # Runs on weekends too (no new NSE data, but keeps updated_at fresh and
+    # reconfirms the pipeline is actually working every day, not just Mon-Fri)
+    - cron: "30 12 * * *"
   workflow_dispatch: {}       # lets you trigger a run by hand from the Actions tab
 
 permissions:
