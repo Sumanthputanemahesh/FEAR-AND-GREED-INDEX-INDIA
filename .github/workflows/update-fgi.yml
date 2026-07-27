@@ -50,7 +50,15 @@ jobs:
             echo "No data changes to commit."
           else
             git commit -m "Update India FGI — $(date -u +'%Y-%m-%d')"
-            git push
+            # Retry with rebase if a push lands between an earlier commit and
+            # this one (e.g. a manual push, or an overlapping run) so a race
+            # fails over cleanly instead of erroring the whole job out.
+            for i in 1 2 3; do
+              if git push; then break; fi
+              echo "Push rejected, pulling and retrying ($i/3)..."
+              git pull --rebase origin main
+              sleep $((i * 3))
+            done
           fi
 
       - name: Upload build report as artifact
