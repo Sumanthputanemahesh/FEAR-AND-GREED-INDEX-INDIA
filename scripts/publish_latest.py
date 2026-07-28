@@ -1,9 +1,14 @@
 """
 Derives docs/data/latest.json (consumed by docs/index.html) from whichever
 of india_fgi_core.csv / india_fgi_extended.csv build_india_fgi.py produced.
-EXTENDED (includes Put/Call) is preferred for today's headline reading and
-component breakdown; CORE (longer history, no Put/Call) is used for the
-history chart. Mirrors scripts/publish_latest.py in the UK sibling repo.
+
+EXTENDED (includes Put/Call) is preferred over CORE for today's headline
+reading, but ONLY when it's at least as current — if NSE's bhavcopy fetch
+ever lags or fails for a day, EXTENDED would otherwise leave the site
+showing a stale reading while CORE (and the raw price data) is fully up to
+date. Whichever composite has the more recent date wins; ties go to
+EXTENDED for the extra component. Mirrors scripts/publish_latest.py in the
+UK sibling repo.
 
 Run after build_india_fgi.py:  python3 scripts/publish_latest.py
 """
@@ -33,12 +38,18 @@ def main():
     core = load(CORE_CSV)
     ext = load(EXT_CSV)
 
-    # Prefer EXTENDED (includes Put/Call) for today's reading and component
-    # breakdown; fall back to CORE only if EXTENDED has no data.
-    source_df, source_label = (ext, "extended") if ext is not None else (core, "core")
-    if source_df is None:
+    if core is None and ext is None:
         raise RuntimeError("Neither india_fgi_core.csv nor india_fgi_extended.csv has data — "
                             "run scripts/build_india_fgi.py first.")
+
+    # Pick whichever composite is more current; EXTENDED wins ties since it
+    # has the extra component. Stops a lagging Put/Call fetch from silently
+    # making the site's headline reading stale for days while CORE (and the
+    # underlying price data) is actually fully up to date.
+    if ext is not None and (core is None or ext.index[-1] >= core.index[-1]):
+        source_df, source_label = ext, "extended"
+    else:
+        source_df, source_label = core, "core"
 
     # History chart always uses the longest available series (CORE).
     history_df = core if core is not None else ext
