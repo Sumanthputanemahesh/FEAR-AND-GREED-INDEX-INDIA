@@ -580,6 +580,7 @@ function animateGaugeTo(score, duration) {
 let LATEST = null;
 let CORE_ROWS = [];       // parsed core.csv (long history, subset of components)
 let EXT_ROWS = [];        // parsed extended.csv (full component set, shorter)
+let EXT_BY_DATE = new Map(); // date -> EXT_ROWS entry, for merging into CORE-derived scrub rows
 let PRICE_ROWS = [];      // {date, price}
 let displayMode = "live"; // "live" | "scrub"
 let scrubIndex = null;
@@ -865,11 +866,15 @@ function rowFromCoreIndex(idx) {
   const r = slice[idx];
   if (!r) return null;
   const priceRow = PRICE_ROWS.find(p => p.date === r.date);
+  // CORE never carries Put/Call, but EXTENDED does (from mid-2025 onward) —
+  // merge it in by date so scrubbing shows the real value wherever it
+  // actually exists, instead of always reading "not in range".
+  const extRow = EXT_BY_DATE.get(r.date);
   return {
     date: r.date, composite: r.composite, zone: r.zone,
     momentum: r.momentum, volatility: r.volatility, strength: r.strength,
     breadth: r.breadth, safe_haven: r.safe_haven,
-    put_call: undefined, // CORE doesn't carry this historically
+    put_call: extRow ? extRow.put_call : undefined,
     price: priceRow ? priceRow.price : null,
   };
 }
@@ -983,6 +988,7 @@ async function boot() {
     CONFIG.components.forEach(c => { if (r[c.key] !== undefined) row[c.key] = parseFloat(r[c.key]); });
     return row;
   }).filter(r => r.date);
+  EXT_BY_DATE = new Map(EXT_ROWS.map(r => [r.date, r]));
 
   const priceLines = priceText.trim().split("\n").slice(1);
   PRICE_ROWS = priceLines.map(l => { const [d, p] = l.split(","); return { date: d, price: parseFloat(p) }; });
