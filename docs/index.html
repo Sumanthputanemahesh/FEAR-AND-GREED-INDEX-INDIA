@@ -346,6 +346,17 @@ footer a:hover { text-decoration-color: var(--mute); }
 
   <div class="timeline" id="timeline" aria-label="Score at earlier points in time"></div>
 
+  <section class="section" id="intraday-section" style="display:none;">
+    <div class="section-head">
+      <div class="section-title">Today so far</div>
+      <div class="section-note" id="intraday-note"></div>
+    </div>
+    <div class="chart-axis-label">Live estimate through today's session — updates hourly while the market is open</div>
+    <div class="chart-block chart-intraday" id="chart-intraday-wrap" style="height:140px;">
+      <canvas id="chart-intraday"></canvas>
+    </div>
+  </section>
+
   <section class="section">
     <div class="section-head">
       <div class="section-title">The six signals</div>
@@ -452,6 +463,10 @@ function zoneOf(score) {
   if (score === null || score === undefined || isNaN(score)) return null;
   return ZONES.find(z => score <= z.hi) || ZONES[ZONES.length - 1];
 }
+const ZONE_RGB = {
+  "Extreme Fear": "158,42,43", "Fear": "192,112,58", "Neutral": "166,146,79",
+  "Greed": "92,124,63", "Extreme Greed": "53,89,47",
+};
 function zoneColor(key) {
   const z = ZONES.find(z => z.key === key);
   return z ? getComputedStyle(document.documentElement).getPropertyValue(z.cssvar).trim() : "#888";
@@ -735,10 +750,7 @@ function buildCharts() {
   const axisColor = dark ? "#8c8574" : "#837c6d";
   const gridColor = dark ? "rgba(236,231,220,0.08)" : "rgba(23,20,15,0.07)";
 
-  const zoneRGB = {
-    "Extreme Fear": "158,42,43", "Fear": "192,112,58", "Neutral": "166,146,79",
-    "Greed": "92,124,63", "Extreme Greed": "53,89,47",
-  };
+  const zoneRGB = ZONE_RGB;
 
   const zoneBandsPlugin = {
     id: "zoneBands",
@@ -815,6 +827,75 @@ function buildCharts() {
       events: ["mousemove", "mouseout", "touchstart", "touchmove"],
     },
     plugins: [scrubLinePlugin],
+  });
+}
+
+let intradayChart = null;
+async function renderIntraday() {
+  const section = document.getElementById("intraday-section");
+  let points;
+  try {
+    const res = await fetch("data/intraday.json?t=" + Date.now());
+    if (!res.ok) { section.style.display = "none"; return; }
+    points = await res.json();
+  } catch {
+    section.style.display = "none";
+    return;
+  }
+  if (!Array.isArray(points) || points.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+
+  const dark = isDark();
+  const axisColor = dark ? "#8c8574" : "#837c6d";
+  const gridColor = dark ? "rgba(236,231,220,0.08)" : "rgba(23,20,15,0.07)";
+
+  const last = points[points.length - 1];
+  const liveNames = (last.live_components || []).map(k => {
+    const c = CONFIG.components.find(cc => cc.key === k);
+    return c ? c.name : k;
+  }).join(", ");
+  const frozenDates = last.frozen_as_of || {};
+  const frozenStr = Object.entries(frozenDates).map(([src, d]) => `${src} ${fmtDate(d)}`).join(", ");
+  document.getElementById("intraday-note").textContent =
+    `Live: ${liveNames}. Everything else held at last close (${frozenStr}). Last update ${last.time} UTC.`;
+
+  section.style.display = "";
+
+  const labels = points.map(p => p.time);
+  const scores = points.map(p => p.composite);
+
+  if (intradayChart) intradayChart.destroy();
+  intradayChart = new Chart(document.getElementById("chart-intraday"), {
+    type: "line",
+    data: { labels, datasets: [
+      {
+        label: "Live estimate", data: scores, borderWidth: 1.6, pointRadius: 2.5,
+        pointBackgroundColor: axisColor, tension: 0.15,
+        segment: { borderColor: (ctx) => {
+          const v = ctx.p1.parsed.y; const z = zoneOf(v);
+          return z ? `rgb(${ZONE_RGB[z.key]})` : axisColor;
+        }}
+      }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: prefersReducedMotion() ? 0 : 380 },
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        x: { ticks: { color: axisColor, font: { size: 10 }, maxRotation: 0 }, grid: { display: false }, border: { color: gridColor } },
+        y: { min: 0, max: 100, ticks: { color: axisColor, font: { size: 10 }, stepSize: 25 }, grid: { color: gridColor }, border: { display: false } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y.toFixed(0)} · ${zoneOf(ctx.parsed.y)?.key ?? ""}`,
+          },
+        },
+      },
+    },
   });
 }
 
@@ -1005,6 +1086,7 @@ async function boot() {
   buildCharts();
   updateChartsForRange(null);
   wireScrubEvents();
+  renderIntraday();
 
   exitScrub();
 }

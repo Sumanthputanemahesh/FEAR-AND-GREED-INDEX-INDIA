@@ -41,6 +41,9 @@ jobs:
       - name: Publish latest.json for dashboard
         run: python scripts/publish_latest.py
 
+      - name: Export Excel history
+        run: python scripts/export_excel.py
+
       - name: Commit updated data
         run: |
           git config user.name  "github-actions[bot]"
