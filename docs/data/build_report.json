@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T14:39:05.699895",
+  "generated_at": "2026-07-30T17:39:13.867331",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -59,7 +59,7 @@
     "put_call": {
       "status": "OK",
       "rows": 532,
-      "newly_fetched": 1,
+      "newly_fetched": 0,
       "days_unavailable": 30,
       "range": [
         "2024-06-05",
