@@ -1,0 +1,26 @@
+[
+  {
+    "time": "06:40",
+    "timestamp": "2026-07-31T06:40:09+00:00",
+    "composite": 53.45,
+    "zone": "Neutral",
+    "nifty_close": 24370.400390625,
+    "components": {
+      "strength": 43.4,
+      "breadth": 92.0,
+      "put_call": 8.4,
+      "momentum": 51.4,
+      "volatility": 62.2,
+      "safe_haven": 63.3
+    },
+    "live_components": [
+      "momentum",
+      "safe_haven",
+      "volatility"
+    ],
+    "frozen_as_of": {
+      "core": "2026-07-30",
+      "extended": "2026-07-30"
+    }
+  }
+]
