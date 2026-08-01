@@ -1,6 +1,6 @@
 {
   "date": "2026-07-31",
-  "fgi": 53.72,
+  "fgi": 53.32,
   "zone": "Neutral",
   "source": "extended",
   "n_components": 6,
@@ -9,18 +9,18 @@
     "momentum": 52.6,
     "volatility": 65.3,
     "strength": 43.0,
-    "breadth": 94.4,
+    "breadth": 92.0,
     "safe_haven": 64.1,
     "put_call": 2.8
   },
   "timeline": {
-    "now": 53.72,
+    "now": 53.32,
     "prev_close": 51.0,
     "week_ago": 35.66,
     "month_ago": 33.2,
     "year_ago": 38.57
   },
-  "updated_at": "2026-07-31T14:45:29+00:00",
+  "updated_at": "2026-08-01T14:04:52+00:00",
   "history_days": 281,
   "core_history_days": 1481
 }

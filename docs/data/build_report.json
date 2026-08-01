@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T14:44:57.057030",
+  "generated_at": "2026-08-01T14:04:21.561578",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -17,7 +17,7 @@
         "2008-03-03",
         "2026-07-31"
       ],
-      "latest": 11.755000114440918
+      "latest": 11.760000228881836
     },
     "strength_and_breadth": {
       "status": "OK",
@@ -26,7 +26,7 @@
       "missing": [],
       "breadth_rows": 7676,
       "strength_rows": 7621,
-      "breadth_latest": 9.47783640654433,
+      "breadth_latest": 8.56874549745342,
       "strength_latest": 1.0
     },
     "safe_haven": {
@@ -59,7 +59,7 @@
     "put_call": {
       "status": "OK",
       "rows": 533,
-      "newly_fetched": 1,
+      "newly_fetched": 0,
       "days_unavailable": 30,
       "range": [
         "2024-06-05",
@@ -91,7 +91,7 @@
           "2020-06-11",
           "2026-07-31"
         ],
-        "latest": 63.9,
+        "latest": 63.43,
         "zone": "Greed"
       },
       "extended": {
@@ -108,7 +108,7 @@
           "2025-06-11",
           "2026-07-31"
         ],
-        "latest": 53.72,
+        "latest": 53.32,
         "zone": "Neutral"
       }
     },
@@ -128,13 +128,13 @@
       ],
       "n_days": 1481,
       "latest_date": "2026-07-31",
-      "latest_score": 63.9,
+      "latest_score": 63.43,
       "latest_zone": "Greed",
       "latest_components": {
         "momentum": 52.59,
         "volatility": 65.34,
         "strength": 43.03,
-        "breadth": 94.42,
+        "breadth": 92.03,
         "safe_haven": 64.14
       },
       "zone_distribution_pct": {
