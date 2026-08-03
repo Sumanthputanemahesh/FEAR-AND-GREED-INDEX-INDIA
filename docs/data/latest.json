@@ -1,26 +1,26 @@
 {
-  "date": "2026-07-31",
-  "fgi": 53.72,
-  "zone": "Neutral",
+  "date": "2026-08-03",
+  "fgi": 60.76,
+  "zone": "Greed",
   "source": "extended",
   "n_components": 6,
-  "nifty_close": 24383.599609375,
+  "nifty_close": 24774.30078125,
   "components": {
-    "momentum": 52.6,
-    "volatility": 65.3,
-    "strength": 43.0,
-    "breadth": 94.4,
-    "safe_haven": 64.1,
+    "momentum": 75.7,
+    "volatility": 61.8,
+    "strength": 42.6,
+    "breadth": 100.0,
+    "safe_haven": 81.7,
     "put_call": 2.8
   },
   "timeline": {
-    "now": 53.72,
-    "prev_close": 51.0,
-    "week_ago": 35.66,
-    "month_ago": 33.2,
-    "year_ago": 38.57
+    "now": 60.76,
+    "prev_close": 53.72,
+    "week_ago": 46.61,
+    "month_ago": 55.91,
+    "year_ago": 33.39
   },
-  "updated_at": "2026-08-02T14:06:06+00:00",
-  "history_days": 281,
-  "core_history_days": 1481
+  "updated_at": "2026-08-03T15:23:52+00:00",
+  "history_days": 282,
+  "core_history_days": 1482
 }
