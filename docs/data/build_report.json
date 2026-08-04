@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-04T13:53:19.834239",
+  "generated_at": "2026-08-04T14:57:15.326023",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -26,7 +26,7 @@
       "missing": [],
       "breadth_rows": 7678,
       "strength_rows": 7623,
-      "breadth_latest": 6.1162676470555954,
+      "breadth_latest": 7.617394619256948,
       "strength_latest": 0.75
     },
     "safe_haven": {
@@ -58,14 +58,14 @@
     },
     "put_call": {
       "status": "OK",
-      "rows": 534,
-      "newly_fetched": 0,
-      "days_unavailable": 31,
+      "rows": 535,
+      "newly_fetched": 1,
+      "days_unavailable": 30,
       "range": [
         "2024-06-05",
-        "2026-08-03"
+        "2026-08-04"
       ],
-      "latest_pcr": 1.398,
+      "latest_pcr": 0.9976,
       "note": "PCR is INVERTED when normalised (high PCR = fear)."
     },
     "credit_spread": {
@@ -87,12 +87,12 @@
           "safe_haven",
           "put_call"
         ],
-        "n_days": 282,
+        "n_days": 283,
         "range": [
           "2025-06-11",
-          "2026-08-03"
+          "2026-08-04"
         ],
-        "latest": 60.56,
+        "latest": 61.75,
         "zone": "Greed"
       },
       "extended": {
@@ -104,12 +104,12 @@
           "safe_haven",
           "put_call"
         ],
-        "n_days": 282,
+        "n_days": 283,
         "range": [
           "2025-06-11",
-          "2026-08-03"
+          "2026-08-04"
         ],
-        "latest": 60.56,
+        "latest": 61.75,
         "zone": "Greed"
       }
     },
@@ -126,24 +126,24 @@
       "n_components": 6,
       "date_range": [
         "2025-06-11",
-        "2026-08-03"
+        "2026-08-04"
       ],
-      "n_days": 282,
-      "latest_date": "2026-08-03",
-      "latest_score": 60.56,
+      "n_days": 283,
+      "latest_date": "2026-08-04",
+      "latest_score": 61.75,
       "latest_zone": "Greed",
       "latest_components": {
-        "momentum": 75.7,
-        "volatility": 61.75,
-        "strength": 42.63,
-        "breadth": 98.8,
-        "safe_haven": 81.67,
-        "put_call": 2.79
+        "momentum": 68.13,
+        "volatility": 52.99,
+        "strength": 35.86,
+        "breadth": 90.04,
+        "safe_haven": 78.88,
+        "put_call": 44.62
       },
       "zone_distribution_pct": {
-        "Greed": 33.7,
-        "Neutral": 27.3,
-        "Fear": 23.8,
+        "Greed": 33.9,
+        "Neutral": 27.2,
+        "Fear": 23.7,
         "Extreme Fear": 13.8,
         "Extreme Greed": 1.4
       }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-04T13:53:45",
+  "generated_at": "2026-08-04T14:57:50",
   "core": [
     {
       "date": "2025-06-11",
@@ -3643,28 +3643,41 @@
     },
     {
       "date": "2026-07-31",
-      "composite_score": 53.32,
+      "composite_score": 53.72,
       "zone": "Neutral",
       "components": {
         "momentum": 52.59,
         "volatility": 65.34,
         "strength": 43.03,
-        "breadth": 92.03,
+        "breadth": 94.42,
         "safe_haven": 64.14,
         "put_call": 2.79
       }
     },
     {
       "date": "2026-08-03",
-      "composite_score": 60.56,
+      "composite_score": 60.76,
       "zone": "Greed",
       "components": {
         "momentum": 75.7,
         "volatility": 61.75,
         "strength": 42.63,
-        "breadth": 98.8,
+        "breadth": 100.0,
         "safe_haven": 81.67,
         "put_call": 2.79
+      }
+    },
+    {
+      "date": "2026-08-04",
+      "composite_score": 61.75,
+      "zone": "Greed",
+      "components": {
+        "momentum": 68.13,
+        "volatility": 52.99,
+        "strength": 35.86,
+        "breadth": 90.04,
+        "safe_haven": 78.88,
+        "put_call": 44.62
       }
     }
   ],
@@ -7311,28 +7324,41 @@
     },
     {
       "date": "2026-07-31",
-      "composite_score": 53.32,
+      "composite_score": 53.72,
       "zone": "Neutral",
       "components": {
         "momentum": 52.59,
         "volatility": 65.34,
         "strength": 43.03,
-        "breadth": 92.03,
+        "breadth": 94.42,
         "safe_haven": 64.14,
         "put_call": 2.79
       }
     },
     {
       "date": "2026-08-03",
-      "composite_score": 60.56,
+      "composite_score": 60.76,
       "zone": "Greed",
       "components": {
         "momentum": 75.7,
         "volatility": 61.75,
         "strength": 42.63,
-        "breadth": 98.8,
+        "breadth": 100.0,
         "safe_haven": 81.67,
         "put_call": 2.79
+      }
+    },
+    {
+      "date": "2026-08-04",
+      "composite_score": 61.75,
+      "zone": "Greed",
+      "components": {
+        "momentum": 68.13,
+        "volatility": 52.99,
+        "strength": 35.86,
+        "breadth": 90.04,
+        "safe_haven": 78.88,
+        "put_call": 44.62
       }
     }
   ]
