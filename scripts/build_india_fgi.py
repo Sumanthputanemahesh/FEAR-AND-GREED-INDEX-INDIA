@@ -461,9 +461,16 @@ def main():
     #   EXTENDED - every available component including Put/Call. More complete
     #              picture of today, but a much shorter series.
     #
-    # These are NOT interchangeable: a CORE score and an EXTENDED score for the
-    # same day are computed from different component sets and will differ.
-    CORE_COMPONENTS = ["momentum", "volatility", "strength", "breadth", "safe_haven"]
+    # CORE used to mean "5 components, long history" and EXTENDED "6,
+    # shorter history" — two composites computed from different component
+    # sets that could genuinely disagree on the same date. Deliberately
+    # collapsed to one: every component that's currently available (i.e.
+    # everything in `norm`) is required, full stop. CORE and EXTENDED are
+    # now always identical; both filenames are still written so nothing
+    # downstream has to change, but there is exactly one composite, and it
+    # only starts once Put/Call has enough history of its own, not back to
+    # 2020.
+    CORE_COMPONENTS = list(norm.keys())
 
     def _assemble(cols: list[str], label: str) -> pd.DataFrame | None:
         cols = [c for c in cols if c in norm]

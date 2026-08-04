@@ -144,6 +144,14 @@ a { color: inherit; }
 .score-date { font-size: 0.78rem; color: var(--mute); }
 .score-asof-live { font-size: 0.72rem; color: var(--mute); }
 .score-asof-live.scrubbing { color: var(--ink-soft); font-weight: 500; }
+.score-asof-live.live-estimate { color: var(--fear); font-weight: 600; }
+.live-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--fear); margin-right: 5px; vertical-align: middle;
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .live-dot { animation: none; } }
 
 /* Gauge */
 .gauge-wrap { display: flex; flex-direction: column; align-items: center; }
@@ -592,8 +600,15 @@ function animateGaugeTo(score, duration) {
 /* ============================================================
    STATE
    ============================================================ */
-let LATEST = null;
+let LATEST = null;        // official, close-based reading (from latest.json)
+let INTRADAY_ROWS = [];   // today's hourly live-estimate points (from intraday.json), if any
+let DISPLAY_LATEST = null; // whichever of LATEST / latest intraday point is more current — what's actually shown
+let usingLiveEstimate = false; // true when DISPLAY_LATEST came from intraday.json, not the settled close
 let CORE_ROWS = [];       // parsed core.csv (long history, subset of components)
+let DISPLAY_ROWS = [];    // CORE_ROWS, with today's row overwritten (or appended, if the
+                           // official daily build hasn't run yet) to match DISPLAY_LATEST —
+                           // what the chart and scrub actually use, so they never lag or
+                           // disagree with the hero
 let EXT_ROWS = [];        // parsed extended.csv (full component set, shorter)
 let EXT_BY_DATE = new Map(); // date -> EXT_ROWS entry, for merging into CORE-derived scrub rows
 let PRICE_ROWS = [];      // {date, price}
@@ -622,12 +637,19 @@ function renderHeroFromRow(row, sourceLabel) {
   document.getElementById("score-zone").style.color = zc;
   document.getElementById("score-date").textContent = fmtDate(row.date);
   const liveTag = document.getElementById("score-live-tag");
+  liveTag.classList.remove("scrubbing", "live-estimate");
   if (displayMode === "scrub") {
     liveTag.textContent = "Historical reading — release to return to today";
     liveTag.classList.add("scrubbing");
+  } else if (usingLiveEstimate) {
+    const liveNames = (DISPLAY_LATEST.liveComponents || []).map(k => {
+      const c = CONFIG.components.find(cc => cc.key === k);
+      return c ? c.name : k;
+    }).join(", ");
+    liveTag.innerHTML = `<span class="live-dot"></span>Live estimate, ${DISPLAY_LATEST.liveTime} UTC — ${liveNames} updating now, rest at last close. Settles at market close.`;
+    liveTag.classList.add("live-estimate");
   } else {
     liveTag.textContent = `Updated ${LATEST ? new Date(LATEST.updated_at).toLocaleString("en-GB", {hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'}) : ""}`;
-    liveTag.classList.remove("scrubbing");
   }
 
   animateGaugeTo(score, displayMode === "scrub" ? 120 : 420);
@@ -715,7 +737,7 @@ function renderComponents(row) {
 
 /* ---- timeline strip ---- */
 function renderTimeline() {
-  const tl = LATEST.timeline || {};
+  const tl = DISPLAY_LATEST.timeline || {};
   const items = [
     ["Now", tl.now], ["Previous close", tl.prev_close],
     ["1 week ago", tl.week_ago], ["1 month ago", tl.month_ago], ["1 year ago", tl.year_ago],
@@ -831,17 +853,9 @@ function buildCharts() {
 }
 
 let intradayChart = null;
-async function renderIntraday() {
+function renderIntraday() {
   const section = document.getElementById("intraday-section");
-  let points;
-  try {
-    const res = await fetch("data/intraday.json?t=" + Date.now());
-    if (!res.ok) { section.style.display = "none"; return; }
-    points = await res.json();
-  } catch {
-    section.style.display = "none";
-    return;
-  }
+  const points = INTRADAY_ROWS;
   if (!Array.isArray(points) || points.length === 0) {
     section.style.display = "none";
     return;
@@ -901,14 +915,14 @@ async function renderIntraday() {
 
 function updateChartsForRange(days) {
   currentRangeDays = days;
-  const coreSlice = sliceByRange(CORE_ROWS, days);
+  const coreSlice = sliceByRange(DISPLAY_ROWS, days);
   const dates = coreSlice.map(r => r.date);
   const scores = coreSlice.map(r => r.composite);
-  // Today's point should match the headline reading, not CORE's own
-  // composite — see the comment in rowFromCoreIndex for why those can
-  // genuinely differ.
-  if (LATEST && dates.length && dates[dates.length - 1] === LATEST.date) {
-    scores[scores.length - 1] = LATEST.fgi;
+  // Today's point should match the headline reading (which may itself be
+  // a live intraday estimate, not the settled close — see
+  // computeDisplayLatest), not CORE's own composite.
+  if (DISPLAY_LATEST && dates.length && dates[dates.length - 1] === DISPLAY_LATEST.date) {
+    scores[scores.length - 1] = DISPLAY_LATEST.fgi;
   }
   fgiChart.data.labels = dates;
   fgiChart.data.datasets[0].data = scores;
@@ -946,18 +960,16 @@ function buildRangeToolbar() {
 }
 
 /* ---- scrub interaction ---- */
-function coreSliceForCurrentRange() { return sliceByRange(CORE_ROWS, currentRangeDays); }
+function coreSliceForCurrentRange() { return sliceByRange(DISPLAY_ROWS, currentRangeDays); }
 
 function rowFromCoreIndex(idx) {
   const slice = coreSliceForCurrentRange();
   const r = slice[idx];
   if (!r) return null;
-  // Today's row uses CORE's own composite, which is computed from a
-  // different (5-component) set than the headline EXTENDED reading — the
-  // two can genuinely disagree by a wide margin on any given day. Scrubbing
-  // to today should show exactly what the hero shows, not a second,
-  // silently different number for the same date.
-  if (LATEST && r.date === LATEST.date) return liveRow();
+  // Scrubbing to today should show exactly what the hero shows (which may
+  // itself be a live intraday estimate — see computeDisplayLatest), not a
+  // second, silently different number for the same date.
+  if (DISPLAY_LATEST && r.date === DISPLAY_LATEST.date) return liveRow();
   const priceRow = PRICE_ROWS.find(p => p.date === r.date);
   // CORE never carries Put/Call, but EXTENDED does (from mid-2025 onward) —
   // merge it in by date so scrubbing shows the real value wherever it
@@ -972,11 +984,38 @@ function rowFromCoreIndex(idx) {
   };
 }
 
+// Decides what "now" actually means: the official settled close (LATEST),
+// or — during market hours — a more recent hourly live estimate from
+// intraday.json. Only ever moves DISPLAY_LATEST forward in time; a live
+// estimate is used only if it's strictly newer than the official reading,
+// so this can never show something staler than the settled number.
+function computeDisplayLatest() {
+  usingLiveEstimate = false;
+  DISPLAY_LATEST = LATEST;
+  if (!INTRADAY_ROWS.length || !LATEST) return;
+  const last = INTRADAY_ROWS[INTRADAY_ROWS.length - 1];
+  if (new Date(last.timestamp) > new Date(LATEST.updated_at)) {
+    usingLiveEstimate = true;
+    DISPLAY_LATEST = {
+      date: last.timestamp.slice(0, 10),
+      fgi: last.composite,
+      zone: last.zone,
+      [CONFIG.priceKey]: last[CONFIG.priceKey],
+      components: last.components,
+      timeline: { ...(LATEST.timeline || {}), now: last.composite },
+      n_components: Object.keys(last.components || {}).length,
+      updated_at: last.timestamp,
+      liveTime: last.time,
+      liveComponents: last.live_components || [],
+    };
+  }
+}
+
 function liveRow() {
   return {
-    date: LATEST.date, composite: LATEST.fgi, zone: LATEST.zone,
-    ...LATEST.components,
-    price: LATEST[CONFIG.priceKey],
+    date: DISPLAY_LATEST.date, composite: DISPLAY_LATEST.fgi, zone: DISPLAY_LATEST.zone,
+    ...DISPLAY_LATEST.components,
+    price: DISPLAY_LATEST[CONFIG.priceKey],
   };
 }
 
@@ -1062,19 +1101,46 @@ function wireScrubEvents() {
 async function boot() {
   CONFIG.__sansStack = getComputedStyle(document.body).fontFamily;
 
-  const [latestRes, coreRes, extRes, priceRes] = await Promise.all([
+  const [latestRes, coreRes, extRes, priceRes, intradayRes] = await Promise.all([
     fetch(CONFIG.latestUrl), fetch(CONFIG.coreUrl), fetch(CONFIG.extendedUrl), fetch(CONFIG.priceUrl),
+    fetch("data/intraday.json?t=" + Date.now()).catch(() => null),
   ]);
   LATEST = await latestRes.json();
   const coreText = await coreRes.text();
   const extText = await extRes.text();
   const priceText = await priceRes.text();
+  if (intradayRes && intradayRes.ok) {
+    try { INTRADAY_ROWS = await intradayRes.json(); } catch { INTRADAY_ROWS = []; }
+  }
+  if (!Array.isArray(INTRADAY_ROWS)) INTRADAY_ROWS = [];
+  computeDisplayLatest();
 
   CORE_ROWS = parseCSV(coreText).map(r => ({
     date: r.Date, composite: parseFloat(r.composite), zone: r.zone,
     momentum: parseFloat(r.momentum), volatility: parseFloat(r.volatility),
     strength: parseFloat(r.strength), breadth: parseFloat(r.breadth), safe_haven: parseFloat(r.safe_haven),
   })).filter(r => r.date && !isNaN(r.composite));
+
+  // Build DISPLAY_ROWS: CORE_ROWS with today's entry made to match
+  // DISPLAY_LATEST — overwritten if the daily build already produced a row
+  // for today, appended if it hasn't (e.g. mid-session, before today's
+  // official close has been computed). Everything that plots or scrubs the
+  // history — the chart and rowFromCoreIndex — reads this, not CORE_ROWS
+  // directly, so today's point is never stale or silently different from
+  // the hero.
+  DISPLAY_ROWS = CORE_ROWS.slice();
+  if (DISPLAY_LATEST) {
+    const todayRow = {
+      date: DISPLAY_LATEST.date, composite: DISPLAY_LATEST.fgi, zone: DISPLAY_LATEST.zone,
+      ...DISPLAY_LATEST.components,
+    };
+    const lastDate = DISPLAY_ROWS.length ? DISPLAY_ROWS[DISPLAY_ROWS.length - 1].date : null;
+    if (lastDate === DISPLAY_LATEST.date) {
+      DISPLAY_ROWS[DISPLAY_ROWS.length - 1] = { ...DISPLAY_ROWS[DISPLAY_ROWS.length - 1], ...todayRow };
+    } else {
+      DISPLAY_ROWS.push(todayRow);
+    }
+  }
 
   EXT_ROWS = parseCSV(extText).map(r => {
     const row = { date: r.Date };
@@ -1088,7 +1154,9 @@ async function boot() {
 
   document.getElementById("mh-history").textContent = LATEST.history_days ?? CORE_ROWS.length;
   document.getElementById("mh-components").textContent = LATEST.n_components ?? CONFIG.components.length;
-  document.getElementById("mh-updated").textContent = "as of " + fmtDate(LATEST.date);
+  document.getElementById("mh-updated").textContent = usingLiveEstimate
+    ? "live estimate, " + DISPLAY_LATEST.liveTime + " UTC"
+    : "as of " + fmtDate(LATEST.date);
 
   document.getElementById("gauge-mount").innerHTML = buildGaugeSVG();
   initGaugeStatic();

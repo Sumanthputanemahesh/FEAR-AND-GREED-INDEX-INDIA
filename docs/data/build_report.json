@@ -1,46 +1,46 @@
 {
-  "generated_at": "2026-08-03T15:23:22.164030",
+  "generated_at": "2026-08-04T13:53:19.834239",
   "steps": {
     "momentum": {
       "status": "OK",
-      "rows": 4506,
+      "rows": 4507,
       "range": [
         "2008-03-14",
-        "2026-08-03"
+        "2026-08-04"
       ],
-      "latest": 622.8191875000011
+      "latest": 469.8507968749982
     },
     "volatility": {
       "status": "OK",
-      "rows": 4511,
+      "rows": 4512,
       "range": [
         "2008-03-03",
-        "2026-08-03"
+        "2026-08-04"
       ],
-      "latest": 11.925000190734863
+      "latest": 12.1899995803833
     },
     "strength_and_breadth": {
       "status": "OK",
       "n_constituents_used": 48,
       "n_requested": 48,
       "missing": [],
-      "breadth_rows": 7677,
-      "strength_rows": 7622,
-      "breadth_latest": 14.30004796899082,
-      "strength_latest": 1.0
+      "breadth_rows": 7678,
+      "strength_rows": 7623,
+      "breadth_latest": 6.1162676470555954,
+      "strength_latest": 0.75
     },
     "safe_haven": {
       "status": "OK",
       "bond_ticker_used": "LTGILTBEES.NS",
-      "rows": 1749,
+      "rows": 1750,
       "range": [
         "2018-10-05",
-        "2026-08-03"
+        "2026-08-04"
       ],
-      "latest": 0.014745974405869444,
+      "latest": 0.011529619287271142,
       "probe": {
         "LTGILTBEES.NS": {
-          "rows": 1771,
+          "rows": 1772,
           "from": "2018-05-11",
           "USED": true
         },
@@ -59,8 +59,8 @@
     "put_call": {
       "status": "OK",
       "rows": 534,
-      "newly_fetched": 1,
-      "days_unavailable": 30,
+      "newly_fetched": 0,
+      "days_unavailable": 31,
       "range": [
         "2024-06-05",
         "2026-08-03"
@@ -84,14 +84,15 @@
           "volatility",
           "strength",
           "breadth",
-          "safe_haven"
+          "safe_haven",
+          "put_call"
         ],
-        "n_days": 1482,
+        "n_days": 282,
         "range": [
-          "2020-06-11",
+          "2025-06-11",
           "2026-08-03"
         ],
-        "latest": 72.35,
+        "latest": 60.56,
         "zone": "Greed"
       },
       "extended": {
@@ -108,7 +109,7 @@
           "2025-06-11",
           "2026-08-03"
         ],
-        "latest": 60.76,
+        "latest": 60.56,
         "zone": "Greed"
       }
     },
@@ -119,30 +120,32 @@
         "volatility",
         "strength",
         "breadth",
-        "safe_haven"
+        "safe_haven",
+        "put_call"
       ],
-      "n_components": 5,
+      "n_components": 6,
       "date_range": [
-        "2020-06-11",
+        "2025-06-11",
         "2026-08-03"
       ],
-      "n_days": 1482,
+      "n_days": 282,
       "latest_date": "2026-08-03",
-      "latest_score": 72.35,
+      "latest_score": 60.56,
       "latest_zone": "Greed",
       "latest_components": {
         "momentum": 75.7,
         "volatility": 61.75,
         "strength": 42.63,
-        "breadth": 100.0,
-        "safe_haven": 81.67
+        "breadth": 98.8,
+        "safe_haven": 81.67,
+        "put_call": 2.79
       },
       "zone_distribution_pct": {
-        "Greed": 32.9,
-        "Fear": 27.9,
-        "Neutral": 18.9,
-        "Extreme Fear": 16.6,
-        "Extreme Greed": 3.6
+        "Greed": 33.7,
+        "Neutral": 27.3,
+        "Fear": 23.8,
+        "Extreme Fear": 13.8,
+        "Extreme Greed": 1.4
       }
     }
   }
