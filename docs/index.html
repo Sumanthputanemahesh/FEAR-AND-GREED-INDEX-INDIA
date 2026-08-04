@@ -904,6 +904,12 @@ function updateChartsForRange(days) {
   const coreSlice = sliceByRange(CORE_ROWS, days);
   const dates = coreSlice.map(r => r.date);
   const scores = coreSlice.map(r => r.composite);
+  // Today's point should match the headline reading, not CORE's own
+  // composite — see the comment in rowFromCoreIndex for why those can
+  // genuinely differ.
+  if (LATEST && dates.length && dates[dates.length - 1] === LATEST.date) {
+    scores[scores.length - 1] = LATEST.fgi;
+  }
   fgiChart.data.labels = dates;
   fgiChart.data.datasets[0].data = scores;
   fgiChart.update();
@@ -946,6 +952,12 @@ function rowFromCoreIndex(idx) {
   const slice = coreSliceForCurrentRange();
   const r = slice[idx];
   if (!r) return null;
+  // Today's row uses CORE's own composite, which is computed from a
+  // different (5-component) set than the headline EXTENDED reading — the
+  // two can genuinely disagree by a wide margin on any given day. Scrubbing
+  // to today should show exactly what the hero shows, not a second,
+  // silently different number for the same date.
+  if (LATEST && r.date === LATEST.date) return liveRow();
   const priceRow = PRICE_ROWS.find(p => p.date === r.date);
   // CORE never carries Put/Call, but EXTENDED does (from mid-2025 onward) —
   // merge it in by date so scrubbing shows the real value wherever it
