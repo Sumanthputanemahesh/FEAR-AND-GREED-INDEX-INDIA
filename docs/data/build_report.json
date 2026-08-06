@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-06T12:23:20.191021",
+  "generated_at": "2026-08-06T12:28:18.662263",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -8,7 +8,7 @@
         "2008-03-14",
         "2026-08-06"
       ],
-      "latest": 500.13760937500047
+      "latest": 492.44960937499854
     },
     "volatility": {
       "status": "OK",
@@ -17,7 +17,7 @@
         "2008-03-03",
         "2026-08-06"
       ],
-      "latest": 12.157500267028809
+      "latest": 12.362500190734863
     },
     "strength_and_breadth": {
       "status": "OK",
@@ -26,8 +26,8 @@
       "missing": [],
       "breadth_rows": 7680,
       "strength_rows": 7625,
-      "breadth_latest": 0.7849248455253923,
-      "strength_latest": 1.0
+      "breadth_latest": 0.22590937837523628,
+      "strength_latest": 0.5
     },
     "safe_haven": {
       "status": "OK",
@@ -37,7 +37,7 @@
         "2018-10-05",
         "2026-08-06"
       ],
-      "latest": 0.02441954016555381,
+      "latest": 0.024096122211586524,
       "probe": {
         "LTGILTBEES.NS": {
           "rows": 1774,
@@ -92,7 +92,7 @@
           "2025-06-11",
           "2026-08-05"
         ],
-        "latest": 67.99,
+        "latest": 66.53,
         "zone": "Greed"
       },
       "extended": {
@@ -109,7 +109,7 @@
           "2025-06-11",
           "2026-08-05"
         ],
-        "latest": 67.99,
+        "latest": 66.53,
         "zone": "Greed"
       }
     },
@@ -130,13 +130,13 @@
       ],
       "n_days": 284,
       "latest_date": "2026-08-05",
-      "latest_score": 67.99,
+      "latest_score": 66.53,
       "latest_zone": "Greed",
       "latest_components": {
         "momentum": 68.92,
         "volatility": 57.77,
         "strength": 42.23,
-        "breadth": 84.06,
+        "breadth": 75.3,
         "safe_haven": 90.04,
         "put_call": 64.94
       },
