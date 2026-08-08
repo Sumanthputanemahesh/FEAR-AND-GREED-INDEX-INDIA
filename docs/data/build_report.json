@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-07T13:46:02.118622",
+  "generated_at": "2026-08-08T12:10:41.250656",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -17,7 +17,7 @@
         "2008-03-03",
         "2026-08-07"
       ],
-      "latest": 12.157500267028809
+      "latest": 12.15999984741211
     },
     "strength_and_breadth": {
       "status": "OK",
@@ -26,7 +26,7 @@
       "missing": [],
       "breadth_rows": 7681,
       "strength_rows": 7626,
-      "breadth_latest": 0.10219031784420156,
+      "breadth_latest": 1.005847600884412,
       "strength_latest": 1.0
     },
     "safe_haven": {
@@ -58,14 +58,14 @@
     },
     "put_call": {
       "status": "OK",
-      "rows": 537,
-      "newly_fetched": 0,
-      "days_unavailable": 30,
+      "rows": 538,
+      "newly_fetched": 1,
+      "days_unavailable": 29,
       "range": [
         "2024-06-05",
-        "2026-08-06"
+        "2026-08-07"
       ],
-      "latest_pcr": 1.045,
+      "latest_pcr": 0.8896,
       "note": "PCR is INVERTED when normalised (high PCR = fear)."
     },
     "credit_spread": {
@@ -87,12 +87,12 @@
           "safe_haven",
           "put_call"
         ],
-        "n_days": 285,
+        "n_days": 286,
         "range": [
           "2025-06-11",
-          "2026-08-06"
+          "2026-08-07"
         ],
-        "latest": 55.78,
+        "latest": 59.5,
         "zone": "Greed"
       },
       "extended": {
@@ -104,12 +104,12 @@
           "safe_haven",
           "put_call"
         ],
-        "n_days": 285,
+        "n_days": 286,
         "range": [
           "2025-06-11",
-          "2026-08-06"
+          "2026-08-07"
         ],
-        "latest": 55.78,
+        "latest": 59.5,
         "zone": "Greed"
       }
     },
@@ -126,25 +126,25 @@
       "n_components": 6,
       "date_range": [
         "2025-06-11",
-        "2026-08-06"
+        "2026-08-07"
       ],
-      "n_days": 285,
-      "latest_date": "2026-08-06",
-      "latest_score": 55.78,
+      "n_days": 286,
+      "latest_date": "2026-08-07",
+      "latest_score": 59.5,
       "latest_zone": "Greed",
       "latest_components": {
-        "momentum": 70.12,
-        "volatility": 54.98,
-        "strength": 41.83,
-        "breadth": 41.43,
-        "safe_haven": 89.24,
-        "put_call": 37.05
+        "momentum": 64.54,
+        "volatility": 55.38,
+        "strength": 41.43,
+        "breadth": 49.4,
+        "safe_haven": 78.49,
+        "put_call": 67.73
       },
       "zone_distribution_pct": {
-        "Greed": 34.4,
-        "Neutral": 27.0,
-        "Fear": 23.5,
-        "Extreme Fear": 13.7,
+        "Greed": 34.6,
+        "Neutral": 26.9,
+        "Fear": 23.4,
+        "Extreme Fear": 13.6,
         "Extreme Greed": 1.4
       }
     }
