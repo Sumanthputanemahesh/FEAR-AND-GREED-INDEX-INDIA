@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-08T12:10:41.250656",
+  "generated_at": "2026-08-08T13:24:44.063385",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -26,7 +26,7 @@
       "missing": [],
       "breadth_rows": 7681,
       "strength_rows": 7626,
-      "breadth_latest": 1.005847600884412,
+      "breadth_latest": 0.10219031784420156,
       "strength_latest": 1.0
     },
     "safe_haven": {
@@ -59,7 +59,7 @@
     "put_call": {
       "status": "OK",
       "rows": 538,
-      "newly_fetched": 1,
+      "newly_fetched": 0,
       "days_unavailable": 29,
       "range": [
         "2024-06-05",
@@ -92,7 +92,7 @@
           "2025-06-11",
           "2026-08-07"
         ],
-        "latest": 59.5,
+        "latest": 58.9,
         "zone": "Greed"
       },
       "extended": {
@@ -109,7 +109,7 @@
           "2025-06-11",
           "2026-08-07"
         ],
-        "latest": 59.5,
+        "latest": 58.9,
         "zone": "Greed"
       }
     },
@@ -130,13 +130,13 @@
       ],
       "n_days": 286,
       "latest_date": "2026-08-07",
-      "latest_score": 59.5,
+      "latest_score": 58.9,
       "latest_zone": "Greed",
       "latest_components": {
         "momentum": 64.54,
         "volatility": 55.38,
         "strength": 41.43,
-        "breadth": 49.4,
+        "breadth": 45.82,
         "safe_haven": 78.49,
         "put_call": 67.73
       },
