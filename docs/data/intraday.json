@@ -46,5 +46,29 @@
       "core": "2026-08-07",
       "extended": "2026-08-07"
     }
+  },
+  {
+    "time": "09:14",
+    "timestamp": "2026-08-10T09:14:34+00:00",
+    "composite": 57.5,
+    "zone": "Greed",
+    "nifty_close": 24570.69921875,
+    "components": {
+      "strength": 41.4,
+      "breadth": 45.8,
+      "put_call": 67.7,
+      "momentum": 66.9,
+      "volatility": 49.0,
+      "safe_haven": 74.1
+    },
+    "live_components": [
+      "momentum",
+      "safe_haven",
+      "volatility"
+    ],
+    "frozen_as_of": {
+      "core": "2026-08-07",
+      "extended": "2026-08-07"
+    }
   }
 ]
