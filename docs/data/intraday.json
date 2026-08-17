@@ -1,17 +1,17 @@
 [
   {
-    "time": "05:28",
-    "timestamp": "2026-08-14T05:28:25+00:00",
-    "composite": 43.97,
+    "time": "04:36",
+    "timestamp": "2026-08-17T04:36:26+00:00",
+    "composite": 39.91,
     "zone": "Fear",
-    "nifty_close": 24323.349609375,
+    "nifty_close": 24289.849609375,
     "components": {
-      "strength": 15.9,
-      "breadth": 21.1,
-      "put_call": 62.9,
-      "momentum": 53.4,
-      "volatility": 74.1,
-      "safe_haven": 36.3
+      "strength": 0.0,
+      "breadth": 9.6,
+      "put_call": 49.0,
+      "momentum": 50.2,
+      "volatility": 72.1,
+      "safe_haven": 58.6
     },
     "live_components": [
       "momentum",
@@ -19,80 +19,8 @@
       "volatility"
     ],
     "frozen_as_of": {
-      "core": "2026-08-13",
-      "extended": "2026-08-13"
-    }
-  },
-  {
-    "time": "07:17",
-    "timestamp": "2026-08-14T07:17:10+00:00",
-    "composite": 44.68,
-    "zone": "Fear",
-    "nifty_close": 24337.69921875,
-    "components": {
-      "strength": 15.9,
-      "breadth": 21.1,
-      "put_call": 62.9,
-      "momentum": 53.8,
-      "volatility": 76.1,
-      "safe_haven": 38.2
-    },
-    "live_components": [
-      "momentum",
-      "safe_haven",
-      "volatility"
-    ],
-    "frozen_as_of": {
-      "core": "2026-08-13",
-      "extended": "2026-08-13"
-    }
-  },
-  {
-    "time": "09:03",
-    "timestamp": "2026-08-14T09:03:15+00:00",
-    "composite": 45.42,
-    "zone": "Neutral",
-    "nifty_close": 24372.150390625,
-    "components": {
-      "strength": 15.9,
-      "breadth": 21.1,
-      "put_call": 62.9,
-      "momentum": 57.0,
-      "volatility": 76.5,
-      "safe_haven": 39.0
-    },
-    "live_components": [
-      "momentum",
-      "safe_haven",
-      "volatility"
-    ],
-    "frozen_as_of": {
-      "core": "2026-08-13",
-      "extended": "2026-08-13"
-    }
-  },
-  {
-    "time": "10:54",
-    "timestamp": "2026-08-14T10:54:27+00:00",
-    "composite": 45.35,
-    "zone": "Neutral",
-    "nifty_close": 24366.0,
-    "components": {
-      "strength": 15.9,
-      "breadth": 21.1,
-      "put_call": 62.9,
-      "momentum": 57.0,
-      "volatility": 76.5,
-      "safe_haven": 38.6
-    },
-    "live_components": [
-      "momentum",
-      "safe_haven",
-      "volatility"
-    ],
-    "frozen_as_of": {
-      "core": "2026-08-13",
-      "extended": "2026-08-13"
+      "core": "2026-08-14",
+      "extended": "2026-08-14"
     }
   }
 ]
