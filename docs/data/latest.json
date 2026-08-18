@@ -1,6 +1,6 @@
 {
   "date": "2026-08-14",
-  "fgi": 41.43,
+  "fgi": 37.65,
   "zone": "Fear",
   "source": "extended",
   "n_components": 6,
@@ -9,18 +9,18 @@
     "momentum": 52.6,
     "volatility": 76.5,
     "strength": 0.0,
-    "breadth": 9.6,
-    "safe_haven": 61.0,
+    "breadth": 9.2,
+    "safe_haven": 38.6,
     "put_call": 49.0
   },
   "timeline": {
-    "now": 41.43,
-    "prev_close": 46.48,
-    "week_ago": 53.72,
-    "month_ago": 44.56,
-    "year_ago": 55.05
+    "now": 37.65,
+    "prev_close": 49.67,
+    "week_ago": 58.43,
+    "month_ago": 43.49,
+    "year_ago": 55.44
   },
-  "updated_at": "2026-08-17T13:13:48+00:00",
-  "history_days": 287,
-  "core_history_days": 287
+  "updated_at": "2026-08-18T13:16:54+00:00",
+  "history_days": 288,
+  "core_history_days": 288
 }
