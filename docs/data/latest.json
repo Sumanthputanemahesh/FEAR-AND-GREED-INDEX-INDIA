@@ -15,12 +15,12 @@
   },
   "timeline": {
     "now": 45.35,
-    "prev_close": 41.9,
-    "week_ago": 50.2,
+    "prev_close": 41.97,
+    "week_ago": 50.46,
     "month_ago": 54.65,
     "year_ago": 60.69
   },
-  "updated_at": "2026-08-20T13:25:19+00:00",
-  "history_days": 294,
-  "core_history_days": 294
+  "updated_at": "2026-08-21T13:24:37+00:00",
+  "history_days": 295,
+  "core_history_days": 295
 }
