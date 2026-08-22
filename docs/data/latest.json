@@ -1,26 +1,26 @@
 {
-  "date": "2026-08-20",
-  "fgi": 45.35,
+  "date": "2026-08-21",
+  "fgi": 47.54,
   "zone": "Neutral",
   "source": "extended",
   "n_components": 6,
-  "nifty_close": 24231.849609375,
+  "nifty_close": 24252.0,
   "components": {
-    "momentum": 52.2,
-    "volatility": 84.1,
+    "momentum": 54.6,
+    "volatility": 78.1,
     "strength": 17.5,
-    "breadth": 18.3,
-    "safe_haven": 73.7,
-    "put_call": 26.3
+    "breadth": 25.1,
+    "safe_haven": 83.3,
+    "put_call": 26.7
   },
   "timeline": {
-    "now": 45.35,
-    "prev_close": 41.97,
-    "week_ago": 50.46,
-    "month_ago": 54.65,
-    "year_ago": 60.69
+    "now": 47.54,
+    "prev_close": 45.35,
+    "week_ago": 38.38,
+    "month_ago": 52.32,
+    "year_ago": 62.68
   },
-  "updated_at": "2026-08-21T13:24:37+00:00",
-  "history_days": 295,
-  "core_history_days": 295
+  "updated_at": "2026-08-22T13:07:44+00:00",
+  "history_days": 296,
+  "core_history_days": 296
 }

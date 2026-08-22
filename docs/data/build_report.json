@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-21T13:24:02.497888",
+  "generated_at": "2026-08-22T13:07:09.126952",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -17,7 +17,7 @@
         "2008-03-03",
         "2026-08-21"
       ],
-      "latest": 11.194999694824219
+      "latest": 11.199999809265137
     },
     "strength_and_breadth": {
       "status": "OK",
@@ -26,8 +26,8 @@
       "missing": [],
       "breadth_rows": 7691,
       "strength_rows": 7636,
-      "breadth_latest": -4.0990760643735555,
-      "strength_latest": 0.0
+      "breadth_latest": -3.371803337100828,
+      "strength_latest": 0.5
     },
     "safe_haven": {
       "status": "OK",
@@ -58,14 +58,14 @@
     },
     "put_call": {
       "status": "OK",
-      "rows": 547,
-      "newly_fetched": 0,
-      "days_unavailable": 30,
+      "rows": 548,
+      "newly_fetched": 1,
+      "days_unavailable": 29,
       "range": [
         "2024-06-05",
-        "2026-08-20"
+        "2026-08-21"
       ],
-      "latest_pcr": 1.1222,
+      "latest_pcr": 1.1137,
       "note": "PCR is INVERTED when normalised (high PCR = fear)."
     },
     "credit_spread": {
@@ -87,12 +87,12 @@
           "safe_haven",
           "put_call"
         ],
-        "n_days": 295,
+        "n_days": 296,
         "range": [
           "2025-06-11",
-          "2026-08-20"
+          "2026-08-21"
         ],
-        "latest": 45.35,
+        "latest": 47.54,
         "zone": "Neutral"
       },
       "extended": {
@@ -104,12 +104,12 @@
           "safe_haven",
           "put_call"
         ],
-        "n_days": 295,
+        "n_days": 296,
         "range": [
           "2025-06-11",
-          "2026-08-20"
+          "2026-08-21"
         ],
-        "latest": 45.35,
+        "latest": 47.54,
         "zone": "Neutral"
       }
     },
@@ -126,24 +126,24 @@
       "n_components": 6,
       "date_range": [
         "2025-06-11",
-        "2026-08-20"
+        "2026-08-21"
       ],
-      "n_days": 295,
-      "latest_date": "2026-08-20",
-      "latest_score": 45.35,
+      "n_days": 296,
+      "latest_date": "2026-08-21",
+      "latest_score": 47.54,
       "latest_zone": "Neutral",
       "latest_components": {
-        "momentum": 52.19,
-        "volatility": 84.06,
+        "momentum": 54.58,
+        "volatility": 78.09,
         "strength": 17.53,
-        "breadth": 18.33,
-        "safe_haven": 73.71,
-        "put_call": 26.29
+        "breadth": 25.1,
+        "safe_haven": 83.27,
+        "put_call": 26.69
       },
       "zone_distribution_pct": {
-        "Greed": 34.2,
-        "Neutral": 27.1,
-        "Fear": 24.1,
+        "Greed": 34.1,
+        "Neutral": 27.4,
+        "Fear": 24.0,
         "Extreme Fear": 13.2,
         "Extreme Greed": 1.4
       }
