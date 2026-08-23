@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-22T13:07:09.126952",
+  "generated_at": "2026-08-23T13:08:19.366393",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -26,8 +26,8 @@
       "missing": [],
       "breadth_rows": 7691,
       "strength_rows": 7636,
-      "breadth_latest": -3.371803337100828,
-      "strength_latest": 0.5
+      "breadth_latest": -4.0990760643735555,
+      "strength_latest": 0.0
     },
     "safe_haven": {
       "status": "OK",
@@ -45,12 +45,12 @@
           "USED": true
         },
         "GILT5YBEES.NS": {
-          "rows": 1324,
+          "rows": 1325,
           "from": "2021-04-07",
           "USED": false
         },
         "EBBETF0433.NS": {
-          "rows": 363,
+          "rows": 364,
           "from": "2025-03-03",
           "USED": false
         }
@@ -59,7 +59,7 @@
     "put_call": {
       "status": "OK",
       "rows": 548,
-      "newly_fetched": 1,
+      "newly_fetched": 0,
       "days_unavailable": 29,
       "range": [
         "2024-06-05",
@@ -92,8 +92,8 @@
           "2025-06-11",
           "2026-08-21"
         ],
-        "latest": 47.54,
-        "zone": "Neutral"
+        "latest": 43.96,
+        "zone": "Fear"
       },
       "extended": {
         "components": [
@@ -109,8 +109,8 @@
           "2025-06-11",
           "2026-08-21"
         ],
-        "latest": 47.54,
-        "zone": "Neutral"
+        "latest": 43.96,
+        "zone": "Fear"
       }
     },
     "FINAL": {
@@ -130,20 +130,20 @@
       ],
       "n_days": 296,
       "latest_date": "2026-08-21",
-      "latest_score": 47.54,
-      "latest_zone": "Neutral",
+      "latest_score": 43.96,
+      "latest_zone": "Fear",
       "latest_components": {
         "momentum": 54.58,
         "volatility": 78.09,
-        "strength": 17.53,
-        "breadth": 25.1,
+        "strength": 0.0,
+        "breadth": 21.12,
         "safe_haven": 83.27,
         "put_call": 26.69
       },
       "zone_distribution_pct": {
         "Greed": 34.1,
-        "Neutral": 27.4,
-        "Fear": 24.0,
+        "Neutral": 27.0,
+        "Fear": 24.3,
         "Extreme Fear": 13.2,
         "Extreme Greed": 1.4
       }
