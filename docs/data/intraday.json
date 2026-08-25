@@ -46,5 +46,29 @@
       "core": "2026-08-21",
       "extended": "2026-08-21"
     }
+  },
+  {
+    "time": "06:38",
+    "timestamp": "2026-08-25T06:38:13+00:00",
+    "composite": 40.17,
+    "zone": "Fear",
+    "nifty_close": 24176.80078125,
+    "components": {
+      "strength": 0.0,
+      "breadth": 21.1,
+      "put_call": 26.7,
+      "momentum": 51.8,
+      "volatility": 78.1,
+      "safe_haven": 63.3
+    },
+    "live_components": [
+      "momentum",
+      "safe_haven",
+      "volatility"
+    ],
+    "frozen_as_of": {
+      "core": "2026-08-21",
+      "extended": "2026-08-21"
+    }
   }
 ]
