@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-28T22:30:16",
+  "generated_at": "2026-08-29T16:49:12",
   "core": [
     {
       "date": "2025-06-11",
@@ -3899,6 +3899,19 @@
         "breadth": 16.73,
         "safe_haven": 30.68,
         "put_call": 86.85
+      }
+    },
+    {
+      "date": "2026-08-28",
+      "composite_score": 51.0,
+      "zone": "Neutral",
+      "components": {
+        "momentum": 53.39,
+        "volatility": 84.06,
+        "strength": 34.26,
+        "breadth": 33.47,
+        "safe_haven": 32.67,
+        "put_call": 68.13
       }
     }
   ],
@@ -7801,6 +7814,19 @@
         "breadth": 16.73,
         "safe_haven": 30.68,
         "put_call": 86.85
+      }
+    },
+    {
+      "date": "2026-08-28",
+      "composite_score": 51.0,
+      "zone": "Neutral",
+      "components": {
+        "momentum": 53.39,
+        "volatility": 84.06,
+        "strength": 34.26,
+        "breadth": 33.47,
+        "safe_haven": 32.67,
+        "put_call": 68.13
       }
     }
   ]
