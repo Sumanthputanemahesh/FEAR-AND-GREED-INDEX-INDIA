@@ -1,17 +1,17 @@
 [
   {
-    "time": "15:52",
-    "timestamp": "2026-08-28T15:52:02+00:00",
-    "composite": 51.21,
+    "time": "10:24",
+    "timestamp": "2026-08-31T10:24:46+00:00",
+    "composite": 46.21,
     "zone": "Neutral",
-    "nifty_close": 24175.650390625,
+    "nifty_close": 24080.400390625,
     "components": {
-      "strength": 42.6,
-      "breadth": 27.9,
-      "put_call": 66.5,
-      "momentum": 53.4,
-      "volatility": 84.1,
-      "safe_haven": 32.7
+      "strength": 34.3,
+      "breadth": 33.5,
+      "put_call": 68.1,
+      "momentum": 49.4,
+      "volatility": 76.5,
+      "safe_haven": 15.5
     },
     "live_components": [
       "momentum",
@@ -19,8 +19,8 @@
       "volatility"
     ],
     "frozen_as_of": {
-      "core": "2026-08-26",
-      "extended": "2026-08-26"
+      "core": "2026-08-28",
+      "extended": "2026-08-28"
     }
   }
 ]
