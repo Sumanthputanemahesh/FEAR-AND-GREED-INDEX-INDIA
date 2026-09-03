@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T16:43:35",
+  "generated_at": "2026-09-03T16:35:01",
   "core": [
     {
       "date": "2025-06-11",
@@ -3942,15 +3942,28 @@
     },
     {
       "date": "2026-09-02",
-      "composite_score": 35.59,
+      "composite_score": 35.66,
       "zone": "Fear",
       "components": {
         "momentum": 45.42,
-        "volatility": 67.33,
+        "volatility": 67.73,
         "strength": 0.0,
         "breadth": 11.16,
         "safe_haven": 17.53,
         "put_call": 72.11
+      }
+    },
+    {
+      "date": "2026-09-03",
+      "composite_score": 38.45,
+      "zone": "Fear",
+      "components": {
+        "momentum": 44.22,
+        "volatility": 72.11,
+        "strength": 0.0,
+        "breadth": 14.34,
+        "safe_haven": 15.94,
+        "put_call": 84.06
       }
     }
   ],
@@ -7896,15 +7909,28 @@
     },
     {
       "date": "2026-09-02",
-      "composite_score": 35.59,
+      "composite_score": 35.66,
       "zone": "Fear",
       "components": {
         "momentum": 45.42,
-        "volatility": 67.33,
+        "volatility": 67.73,
         "strength": 0.0,
         "breadth": 11.16,
         "safe_haven": 17.53,
         "put_call": 72.11
+      }
+    },
+    {
+      "date": "2026-09-03",
+      "composite_score": 38.45,
+      "zone": "Fear",
+      "components": {
+        "momentum": 44.22,
+        "volatility": 72.11,
+        "strength": 0.0,
+        "breadth": 14.34,
+        "safe_haven": 15.94,
+        "put_call": 84.06
       }
     }
   ]
