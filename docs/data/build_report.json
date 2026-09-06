@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-05T15:22:45.384911",
+  "generated_at": "2026-09-06T15:36:06.014892",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -45,12 +45,12 @@
           "USED": true
         },
         "GILT5YBEES.NS": {
-          "rows": 1334,
+          "rows": 1335,
           "from": "2021-04-07",
           "USED": false
         },
         "EBBETF0433.NS": {
-          "rows": 373,
+          "rows": 374,
           "from": "2025-03-03",
           "USED": false
         }
@@ -60,7 +60,7 @@
       "status": "OK",
       "rows": 558,
       "newly_fetched": 0,
-      "days_unavailable": 29,
+      "days_unavailable": 28,
       "range": [
         "2024-06-05",
         "2026-09-04"
