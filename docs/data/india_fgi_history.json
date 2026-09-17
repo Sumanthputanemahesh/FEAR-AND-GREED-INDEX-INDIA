@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16T17:10:47",
+  "generated_at": "2026-09-17T17:10:54",
   "core": [
     {
       "date": "2025-06-11",
@@ -4046,28 +4046,41 @@
     },
     {
       "date": "2026-09-15",
-      "composite_score": 28.69,
+      "composite_score": 28.62,
       "zone": "Fear",
       "components": {
         "momentum": 26.69,
         "volatility": 35.46,
         "strength": 0.0,
-        "breadth": 1.2,
+        "breadth": 0.8,
         "safe_haven": 11.95,
         "put_call": 96.81
       }
     },
     {
       "date": "2026-09-16",
-      "composite_score": 24.63,
+      "composite_score": 24.57,
       "zone": "Extreme Fear",
       "components": {
         "momentum": 28.29,
         "volatility": 41.04,
         "strength": 0.0,
-        "breadth": 9.16,
+        "breadth": 8.76,
         "safe_haven": 16.73,
         "put_call": 52.59
+      }
+    },
+    {
+      "date": "2026-09-17",
+      "composite_score": 31.87,
+      "zone": "Fear",
+      "components": {
+        "momentum": 29.08,
+        "volatility": 50.2,
+        "strength": 21.51,
+        "breadth": 23.9,
+        "safe_haven": 20.72,
+        "put_call": 45.82
       }
     }
   ],
@@ -8117,28 +8130,41 @@
     },
     {
       "date": "2026-09-15",
-      "composite_score": 28.69,
+      "composite_score": 28.62,
       "zone": "Fear",
       "components": {
         "momentum": 26.69,
         "volatility": 35.46,
         "strength": 0.0,
-        "breadth": 1.2,
+        "breadth": 0.8,
         "safe_haven": 11.95,
         "put_call": 96.81
       }
     },
     {
       "date": "2026-09-16",
-      "composite_score": 24.63,
+      "composite_score": 24.57,
       "zone": "Extreme Fear",
       "components": {
         "momentum": 28.29,
         "volatility": 41.04,
         "strength": 0.0,
-        "breadth": 9.16,
+        "breadth": 8.76,
         "safe_haven": 16.73,
         "put_call": 52.59
+      }
+    },
+    {
+      "date": "2026-09-17",
+      "composite_score": 31.87,
+      "zone": "Fear",
+      "components": {
+        "momentum": 29.08,
+        "volatility": 50.2,
+        "strength": 21.51,
+        "breadth": 23.9,
+        "safe_haven": 20.72,
+        "put_call": 45.82
       }
     }
   ]
