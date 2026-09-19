@@ -1,6 +1,6 @@
 {
   "date": "2026-09-18",
-  "fgi": 28.49,
+  "fgi": 28.69,
   "zone": "Fear",
   "source": "extended",
   "n_components": 6,
@@ -9,18 +9,18 @@
     "momentum": 30.7,
     "volatility": 71.3,
     "strength": 0.0,
-    "breadth": 22.3,
+    "breadth": 23.5,
     "safe_haven": 14.3,
     "put_call": 32.3
   },
   "timeline": {
-    "now": 28.49,
-    "prev_close": 31.34,
+    "now": 28.69,
+    "prev_close": 31.47,
     "week_ago": 23.31,
     "month_ago": 41.97,
     "year_ago": 65.74
   },
-  "updated_at": "2026-09-18T16:35:42+00:00",
+  "updated_at": "2026-09-19T15:58:46+00:00",
   "history_days": 315,
   "core_history_days": 315
 }
