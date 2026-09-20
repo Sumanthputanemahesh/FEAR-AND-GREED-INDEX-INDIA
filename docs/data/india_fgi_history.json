@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-19T15:58:46",
+  "generated_at": "2026-09-20T16:20:04",
   "core": [
     {
       "date": "2025-06-11",
@@ -4085,13 +4085,13 @@
     },
     {
       "date": "2026-09-18",
-      "composite_score": 28.69,
+      "composite_score": 28.55,
       "zone": "Fear",
       "components": {
         "momentum": 30.68,
         "volatility": 71.31,
         "strength": 0.0,
-        "breadth": 23.51,
+        "breadth": 22.71,
         "safe_haven": 14.34,
         "put_call": 32.27
       }
@@ -8182,13 +8182,13 @@
     },
     {
       "date": "2026-09-18",
-      "composite_score": 28.69,
+      "composite_score": 28.55,
       "zone": "Fear",
       "components": {
         "momentum": 30.68,
         "volatility": 71.31,
         "strength": 0.0,
-        "breadth": 23.51,
+        "breadth": 22.71,
         "safe_haven": 14.34,
         "put_call": 32.27
       }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-19T15:58:19.898940",
+  "generated_at": "2026-09-20T16:19:36.494810",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -26,7 +26,7 @@
       "missing": [],
       "breadth_rows": 7711,
       "strength_rows": 7656,
-      "breadth_latest": -4.70289086814761,
+      "breadth_latest": -4.8847090499657915,
       "strength_latest": 0.0
     },
     "safe_haven": {
@@ -45,12 +45,12 @@
           "USED": true
         },
         "GILT5YBEES.NS": {
-          "rows": 1344,
+          "rows": 1345,
           "from": "2021-04-07",
           "USED": false
         },
         "EBBETF0433.NS": {
-          "rows": 383,
+          "rows": 384,
           "from": "2025-03-03",
           "USED": false
         }
@@ -92,7 +92,7 @@
           "2025-06-11",
           "2026-09-18"
         ],
-        "latest": 28.69,
+        "latest": 28.55,
         "zone": "Fear"
       },
       "extended": {
@@ -109,7 +109,7 @@
           "2025-06-11",
           "2026-09-18"
         ],
-        "latest": 28.69,
+        "latest": 28.55,
         "zone": "Fear"
       }
     },
@@ -130,13 +130,13 @@
       ],
       "n_days": 315,
       "latest_date": "2026-09-18",
-      "latest_score": 28.69,
+      "latest_score": 28.55,
       "latest_zone": "Fear",
       "latest_components": {
         "momentum": 30.68,
         "volatility": 71.31,
         "strength": 0.0,
-        "breadth": 23.51,
+        "breadth": 22.71,
         "safe_haven": 14.34,
         "put_call": 32.27
       },
