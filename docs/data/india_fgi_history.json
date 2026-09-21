@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-20T16:20:04",
+  "generated_at": "2026-09-21T18:15:26",
   "core": [
     {
       "date": "2025-06-11",
@@ -4072,28 +4072,41 @@
     },
     {
       "date": "2026-09-17",
-      "composite_score": 31.47,
+      "composite_score": 32.07,
       "zone": "Fear",
       "components": {
         "momentum": 29.08,
         "volatility": 50.2,
         "strength": 21.91,
-        "breadth": 21.12,
+        "breadth": 24.7,
         "safe_haven": 20.72,
         "put_call": 45.82
       }
     },
     {
       "date": "2026-09-18",
-      "composite_score": 28.55,
+      "composite_score": 30.01,
       "zone": "Fear",
       "components": {
         "momentum": 30.68,
         "volatility": 71.31,
         "strength": 0.0,
-        "breadth": 22.71,
+        "breadth": 31.47,
         "safe_haven": 14.34,
         "put_call": 32.27
+      }
+    },
+    {
+      "date": "2026-09-21",
+      "composite_score": 30.61,
+      "zone": "Fear",
+      "components": {
+        "momentum": 33.07,
+        "volatility": 75.7,
+        "strength": 0.0,
+        "breadth": 43.03,
+        "safe_haven": 17.93,
+        "put_call": 13.94
       }
     }
   ],
@@ -8169,28 +8182,41 @@
     },
     {
       "date": "2026-09-17",
-      "composite_score": 31.47,
+      "composite_score": 32.07,
       "zone": "Fear",
       "components": {
         "momentum": 29.08,
         "volatility": 50.2,
         "strength": 21.91,
-        "breadth": 21.12,
+        "breadth": 24.7,
         "safe_haven": 20.72,
         "put_call": 45.82
       }
     },
     {
       "date": "2026-09-18",
-      "composite_score": 28.55,
+      "composite_score": 30.01,
       "zone": "Fear",
       "components": {
         "momentum": 30.68,
         "volatility": 71.31,
         "strength": 0.0,
-        "breadth": 22.71,
+        "breadth": 31.47,
         "safe_haven": 14.34,
         "put_call": 32.27
+      }
+    },
+    {
+      "date": "2026-09-21",
+      "composite_score": 30.61,
+      "zone": "Fear",
+      "components": {
+        "momentum": 33.07,
+        "volatility": 75.7,
+        "strength": 0.0,
+        "breadth": 43.03,
+        "safe_haven": 17.93,
+        "put_call": 13.94
       }
     }
   ]
