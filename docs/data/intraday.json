@@ -22,5 +22,29 @@
       "core": "2026-09-24",
       "extended": "2026-09-24"
     }
+  },
+  {
+    "time": "14:56",
+    "timestamp": "2026-09-25T14:56:45+00:00",
+    "composite": 32.34,
+    "zone": "Fear",
+    "nifty_close": 23140.5,
+    "components": {
+      "strength": 0.0,
+      "breadth": 13.9,
+      "put_call": 81.3,
+      "momentum": 27.5,
+      "volatility": 55.8,
+      "safe_haven": 15.5
+    },
+    "live_components": [
+      "momentum",
+      "safe_haven",
+      "volatility"
+    ],
+    "frozen_as_of": {
+      "core": "2026-09-24",
+      "extended": "2026-09-24"
+    }
   }
 ]
