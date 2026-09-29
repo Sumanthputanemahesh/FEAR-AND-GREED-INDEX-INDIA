@@ -1,17 +1,17 @@
 [
   {
-    "time": "10:27",
-    "timestamp": "2026-09-28T10:27:13+00:00",
-    "composite": 25.7,
+    "time": "10:21",
+    "timestamp": "2026-09-29T10:21:20+00:00",
+    "composite": 26.04,
     "zone": "Fear",
-    "nifty_close": 22780.25,
+    "nifty_close": 22716.19921875,
     "components": {
       "strength": 0.0,
       "breadth": 43.4,
       "put_call": 49.8,
-      "momentum": 19.5,
-      "volatility": 32.3,
-      "safe_haven": 9.2
+      "momentum": 17.9,
+      "volatility": 36.3,
+      "safe_haven": 8.8
     },
     "live_components": [
       "momentum",
