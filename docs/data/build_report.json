@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-02T17:56:30.065314",
+  "generated_at": "2026-10-03T16:34:09.315730",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -45,12 +45,12 @@
           "USED": true
         },
         "GILT5YBEES.NS": {
-          "rows": 1353,
+          "rows": 1355,
           "from": "2021-04-07",
           "USED": false
         },
         "EBBETF0433.NS": {
-          "rows": 392,
+          "rows": 393,
           "from": "2025-03-03",
           "USED": false
         }
