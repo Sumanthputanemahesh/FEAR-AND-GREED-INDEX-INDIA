@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-03T16:34:09.315730",
+  "generated_at": "2026-10-04T16:55:06.996122",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -50,7 +50,7 @@
           "USED": false
         },
         "EBBETF0433.NS": {
-          "rows": 393,
+          "rows": 394,
           "from": "2025-03-03",
           "USED": false
         }
