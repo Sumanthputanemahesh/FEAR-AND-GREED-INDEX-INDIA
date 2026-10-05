@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-04T16:55:06.996122",
+  "generated_at": "2026-10-05T20:37:02.829480",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -21,13 +21,15 @@
     },
     "strength_and_breadth": {
       "status": "OK",
-      "n_constituents_used": 48,
+      "n_constituents_used": 47,
       "n_requested": 48,
-      "missing": [],
-      "breadth_rows": 7720,
-      "strength_rows": 7665,
-      "breadth_latest": -12.391789697311138,
-      "strength_latest": 0.0
+      "missing": [
+        "UPL.NS"
+      ],
+      "breadth_rows": 7721,
+      "strength_rows": 7666,
+      "breadth_latest": -9.863252820476925,
+      "strength_latest": 0.5
     },
     "safe_haven": {
       "status": "OK",
@@ -40,7 +42,7 @@
       "latest": -0.051343571616666694,
       "probe": {
         "LTGILTBEES.NS": {
-          "rows": 1813,
+          "rows": 1814,
           "from": "2018-05-11",
           "USED": true
         },
@@ -58,14 +60,14 @@
     },
     "put_call": {
       "status": "OK",
-      "rows": 576,
-      "newly_fetched": 0,
-      "days_unavailable": 30,
+      "rows": 577,
+      "newly_fetched": 1,
+      "days_unavailable": 29,
       "range": [
         "2024-06-05",
-        "2026-10-01"
+        "2026-10-05"
       ],
-      "latest_pcr": 0.7732,
+      "latest_pcr": 0.9368,
       "note": "PCR is INVERTED when normalised (high PCR = fear)."
     },
     "credit_spread": {
@@ -92,7 +94,7 @@
           "2025-06-11",
           "2026-10-01"
         ],
-        "latest": 22.24,
+        "latest": 22.38,
         "zone": "Extreme Fear"
       },
       "extended": {
@@ -109,7 +111,7 @@
           "2025-06-11",
           "2026-10-01"
         ],
-        "latest": 22.24,
+        "latest": 22.38,
         "zone": "Extreme Fear"
       }
     },
@@ -130,19 +132,19 @@
       ],
       "n_days": 324,
       "latest_date": "2026-10-01",
-      "latest_score": 22.24,
+      "latest_score": 22.38,
       "latest_zone": "Extreme Fear",
       "latest_components": {
         "momentum": 9.56,
         "volatility": 27.49,
         "strength": 0.0,
-        "breadth": 2.79,
+        "breadth": 3.59,
         "safe_haven": 7.57,
         "put_call": 86.06
       },
       "zone_distribution_pct": {
-        "Greed": 31.5,
-        "Fear": 27.5,
+        "Greed": 31.8,
+        "Fear": 27.2,
         "Neutral": 26.2,
         "Extreme Fear": 13.6,
         "Extreme Greed": 1.2
