@@ -1,17 +1,17 @@
 [
   {
-    "time": "11:07",
-    "timestamp": "2026-10-05T11:07:07+00:00",
-    "composite": 23.44,
-    "zone": "Extreme Fear",
-    "nifty_close": 22555.75,
+    "time": "10:59",
+    "timestamp": "2026-10-06T10:59:01+00:00",
+    "composite": 26.42,
+    "zone": "Fear",
+    "nifty_close": 22776.099609375,
     "components": {
       "strength": 0.0,
-      "breadth": 2.8,
+      "breadth": 3.6,
       "put_call": 86.1,
-      "momentum": 14.3,
-      "volatility": 26.7,
-      "safe_haven": 10.8
+      "momentum": 21.1,
+      "volatility": 34.7,
+      "safe_haven": 13.1
     },
     "live_components": [
       "momentum",
