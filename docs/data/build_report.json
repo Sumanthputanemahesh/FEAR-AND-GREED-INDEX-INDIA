@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T18:26:19.398080",
+  "generated_at": "2026-10-10T17:24:21.018898",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -17,7 +17,7 @@
         "2008-03-03",
         "2026-10-09"
       ],
-      "latest": 14.375
+      "latest": 14.380000114440918
     },
     "strength_and_breadth": {
       "status": "OK",
@@ -59,7 +59,7 @@
     "put_call": {
       "status": "OK",
       "rows": 581,
-      "newly_fetched": 1,
+      "newly_fetched": 0,
       "days_unavailable": 29,
       "range": [
         "2024-06-05",
