@@ -1,21 +1,21 @@
 {
-  "generated_at": "2026-10-15T17:12:49.350898",
+  "generated_at": "2026-10-16T16:49:20.826539",
   "steps": {
     "momentum": {
       "status": "OK",
-      "rows": 4557,
+      "rows": 4558,
       "range": [
         "2008-03-14",
-        "2026-10-15"
+        "2026-10-16"
       ],
-      "latest": -805.7187343750011
+      "latest": -647.2587500000009
     },
     "volatility": {
       "status": "OK",
-      "rows": 4562,
+      "rows": 4563,
       "range": [
         "2008-03-03",
-        "2026-10-15"
+        "2026-10-16"
       ],
       "latest": 14.024999618530273
     },
@@ -24,33 +24,33 @@
       "n_constituents_used": 48,
       "n_requested": 48,
       "missing": [],
-      "breadth_rows": 7725,
-      "strength_rows": 7670,
-      "breadth_latest": 4.9714108463407305,
+      "breadth_rows": 7726,
+      "strength_rows": 7671,
+      "breadth_latest": 5.158427056096961,
       "strength_latest": 1.0
     },
     "safe_haven": {
       "status": "OK",
       "bond_ticker_used": "LTGILTBEES.NS",
-      "rows": 1800,
+      "rows": 1801,
       "range": [
         "2018-10-05",
-        "2026-10-15"
+        "2026-10-16"
       ],
-      "latest": 0.006338618409393204,
+      "latest": 0.007792224734651576,
       "probe": {
         "LTGILTBEES.NS": {
-          "rows": 1822,
+          "rows": 1823,
           "from": "2018-05-11",
           "USED": true
         },
         "GILT5YBEES.NS": {
-          "rows": 1358,
+          "rows": 1359,
           "from": "2021-04-07",
           "USED": false
         },
         "EBBETF0433.NS": {
-          "rows": 397,
+          "rows": 398,
           "from": "2025-03-03",
           "USED": false
         }
@@ -58,14 +58,14 @@
     },
     "put_call": {
       "status": "OK",
-      "rows": 585,
+      "rows": 586,
       "newly_fetched": 1,
       "days_unavailable": 29,
       "range": [
         "2024-06-05",
-        "2026-10-15"
+        "2026-10-16"
       ],
-      "latest_pcr": 1.3662,
+      "latest_pcr": 1.2118,
       "note": "PCR is INVERTED when normalised (high PCR = fear)."
     },
     "credit_spread": {
@@ -87,13 +87,13 @@
           "safe_haven",
           "put_call"
         ],
-        "n_days": 333,
+        "n_days": 334,
         "range": [
           "2025-06-11",
-          "2026-10-15"
+          "2026-10-16"
         ],
-        "latest": 44.56,
-        "zone": "Fear"
+        "latest": 47.14,
+        "zone": "Neutral"
       },
       "extended": {
         "components": [
@@ -104,13 +104,13 @@
           "safe_haven",
           "put_call"
         ],
-        "n_days": 333,
+        "n_days": 334,
         "range": [
           "2025-06-11",
-          "2026-10-15"
+          "2026-10-16"
         ],
-        "latest": 44.56,
-        "zone": "Fear"
+        "latest": 47.14,
+        "zone": "Neutral"
       }
     },
     "FINAL": {
@@ -126,24 +126,24 @@
       "n_components": 6,
       "date_range": [
         "2025-06-11",
-        "2026-10-15"
+        "2026-10-16"
       ],
-      "n_days": 333,
-      "latest_date": "2026-10-15",
-      "latest_score": 44.56,
-      "latest_zone": "Fear",
+      "n_days": 334,
+      "latest_date": "2026-10-16",
+      "latest_score": 47.14,
+      "latest_zone": "Neutral",
       "latest_components": {
-        "momentum": 30.68,
-        "volatility": 33.07,
+        "momentum": 34.66,
+        "volatility": 33.47,
         "strength": 52.19,
-        "breadth": 77.29,
-        "safe_haven": 69.72,
-        "put_call": 4.38
+        "breadth": 78.49,
+        "safe_haven": 71.31,
+        "put_call": 12.75
       },
       "zone_distribution_pct": {
-        "Greed": 30.6,
-        "Fear": 27.9,
-        "Neutral": 25.5,
+        "Greed": 30.5,
+        "Fear": 27.8,
+        "Neutral": 25.7,
         "Extreme Fear": 14.7,
         "Extreme Greed": 1.2
       }

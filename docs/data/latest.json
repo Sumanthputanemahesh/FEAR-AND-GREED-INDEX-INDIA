@@ -1,26 +1,26 @@
 {
-  "date": "2026-10-15",
-  "fgi": 44.56,
-  "zone": "Fear",
+  "date": "2026-10-16",
+  "fgi": 47.14,
+  "zone": "Neutral",
   "source": "extended",
   "n_components": 6,
-  "nifty_close": 22997.349609375,
+  "nifty_close": 23146.150390625,
   "components": {
-    "momentum": 30.7,
-    "volatility": 33.1,
+    "momentum": 34.7,
+    "volatility": 33.5,
     "strength": 52.2,
-    "breadth": 77.3,
-    "safe_haven": 69.7,
-    "put_call": 4.4
+    "breadth": 78.5,
+    "safe_haven": 71.3,
+    "put_call": 12.7
   },
   "timeline": {
-    "now": 44.56,
-    "prev_close": 34.26,
-    "week_ago": 22.97,
-    "month_ago": 28.55,
-    "year_ago": 56.91
+    "now": 47.14,
+    "prev_close": 44.56,
+    "week_ago": 22.58,
+    "month_ago": 24.1,
+    "year_ago": 61.35
   },
-  "updated_at": "2026-10-15T17:13:20+00:00",
-  "history_days": 333,
-  "core_history_days": 333
+  "updated_at": "2026-10-16T16:49:51+00:00",
+  "history_days": 334,
+  "core_history_days": 334
 }
