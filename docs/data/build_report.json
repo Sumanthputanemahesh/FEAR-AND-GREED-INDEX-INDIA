@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-16T16:49:20.826539",
+  "generated_at": "2026-10-17T15:46:11.564069",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -17,7 +17,7 @@
         "2008-03-03",
         "2026-10-16"
       ],
-      "latest": 14.024999618530273
+      "latest": 14.0600004196167
     },
     "strength_and_breadth": {
       "status": "OK",
@@ -59,7 +59,7 @@
     "put_call": {
       "status": "OK",
       "rows": 586,
-      "newly_fetched": 1,
+      "newly_fetched": 0,
       "days_unavailable": 29,
       "range": [
         "2024-06-05",
@@ -92,7 +92,7 @@
           "2025-06-11",
           "2026-10-16"
         ],
-        "latest": 47.14,
+        "latest": 47.01,
         "zone": "Neutral"
       },
       "extended": {
@@ -109,7 +109,7 @@
           "2025-06-11",
           "2026-10-16"
         ],
-        "latest": 47.14,
+        "latest": 47.01,
         "zone": "Neutral"
       }
     },
@@ -130,11 +130,11 @@
       ],
       "n_days": 334,
       "latest_date": "2026-10-16",
-      "latest_score": 47.14,
+      "latest_score": 47.01,
       "latest_zone": "Neutral",
       "latest_components": {
         "momentum": 34.66,
-        "volatility": 33.47,
+        "volatility": 32.67,
         "strength": 52.19,
         "breadth": 78.49,
         "safe_haven": 71.31,
