@@ -22,5 +22,29 @@
       "core": "2026-10-16",
       "extended": "2026-10-16"
     }
+  },
+  {
+    "time": "16:45",
+    "timestamp": "2026-10-19T16:45:19+00:00",
+    "composite": 42.57,
+    "zone": "Fear",
+    "nifty_close": 22888.94921875,
+    "components": {
+      "strength": 52.2,
+      "breadth": 78.5,
+      "put_call": 12.7,
+      "momentum": 28.7,
+      "volatility": 27.9,
+      "safe_haven": 55.4
+    },
+    "live_components": [
+      "momentum",
+      "safe_haven",
+      "volatility"
+    ],
+    "frozen_as_of": {
+      "core": "2026-10-16",
+      "extended": "2026-10-16"
+    }
   }
 ]
