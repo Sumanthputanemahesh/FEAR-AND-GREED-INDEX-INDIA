@@ -1,17 +1,17 @@
 [
   {
-    "time": "09:04",
-    "timestamp": "2026-10-21T09:04:06+00:00",
-    "composite": 34.52,
+    "time": "09:06",
+    "timestamp": "2026-10-22T09:06:36+00:00",
+    "composite": 39.04,
     "zone": "Fear",
-    "nifty_close": 22690.80078125,
+    "nifty_close": 22655.75,
     "components": {
-      "strength": 0.0,
-      "breadth": 47.8,
-      "put_call": 72.5,
-      "momentum": 24.7,
-      "volatility": 24.3,
-      "safe_haven": 37.8
+      "strength": 25.5,
+      "breadth": 33.9,
+      "put_call": 84.9,
+      "momentum": 24.3,
+      "volatility": 23.9,
+      "safe_haven": 41.8
     },
     "live_components": [
       "momentum",
@@ -19,32 +19,8 @@
       "volatility"
     ],
     "frozen_as_of": {
-      "core": "2026-10-19",
-      "extended": "2026-10-19"
-    }
-  },
-  {
-    "time": "14:49",
-    "timestamp": "2026-10-21T14:49:10+00:00",
-    "composite": 36.52,
-    "zone": "Fear",
-    "nifty_close": 22811.349609375,
-    "components": {
-      "strength": 0.0,
-      "breadth": 47.8,
-      "put_call": 72.5,
-      "momentum": 27.9,
-      "volatility": 24.7,
-      "safe_haven": 46.2
-    },
-    "live_components": [
-      "momentum",
-      "safe_haven",
-      "volatility"
-    ],
-    "frozen_as_of": {
-      "core": "2026-10-19",
-      "extended": "2026-10-19"
+      "core": "2026-10-21",
+      "extended": "2026-10-21"
     }
   }
 ]
