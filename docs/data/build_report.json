@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-25T16:37:36.904361",
+  "generated_at": "2026-10-26T18:44:38.272885",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -24,10 +24,10 @@
       "n_constituents_used": 48,
       "n_requested": 48,
       "missing": [],
-      "breadth_rows": 7730,
-      "strength_rows": 7675,
-      "breadth_latest": -8.814121992005186,
-      "strength_latest": 0.0
+      "breadth_rows": 7731,
+      "strength_rows": 7676,
+      "breadth_latest": -7.211554357095151,
+      "strength_latest": 0.5
     },
     "safe_haven": {
       "status": "OK",
@@ -40,7 +40,7 @@
       "latest": -0.012617991751408209,
       "probe": {
         "LTGILTBEES.NS": {
-          "rows": 1827,
+          "rows": 1828,
           "from": "2018-05-11",
           "USED": true
         },
@@ -58,14 +58,14 @@
     },
     "put_call": {
       "status": "OK",
-      "rows": 590,
-      "newly_fetched": 0,
+      "rows": 591,
+      "newly_fetched": 1,
       "days_unavailable": 30,
       "range": [
         "2024-06-05",
-        "2026-10-23"
+        "2026-10-26"
       ],
-      "latest_pcr": 0.8142,
+      "latest_pcr": 1.1131,
       "note": "PCR is INVERTED when normalised (high PCR = fear)."
     },
     "credit_spread": {
