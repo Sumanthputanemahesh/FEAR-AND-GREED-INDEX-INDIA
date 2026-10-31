@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-30T18:06:41.294935",
+  "generated_at": "2026-10-31T17:17:49.839829",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -17,7 +17,7 @@
         "2008-03-03",
         "2026-10-30"
       ],
-      "latest": 15.302499771118164
+      "latest": 15.300000190734863
     },
     "strength_and_breadth": {
       "status": "OK",
