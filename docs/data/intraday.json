@@ -1,17 +1,17 @@
 [
   {
-    "time": "11:57",
-    "timestamp": "2026-11-02T11:57:35+00:00",
-    "composite": 50.93,
+    "time": "11:33",
+    "timestamp": "2026-11-03T11:33:33+00:00",
+    "composite": 53.25,
     "zone": "Neutral",
-    "nifty_close": 23440.80078125,
+    "nifty_close": 23810.849609375,
     "components": {
       "strength": 54.6,
       "breadth": 73.7,
       "put_call": 2.0,
-      "momentum": 50.6,
-      "volatility": 28.3,
-      "safe_haven": 96.4
+      "momentum": 64.1,
+      "volatility": 26.7,
+      "safe_haven": 98.4
     },
     "live_components": [
       "momentum",
