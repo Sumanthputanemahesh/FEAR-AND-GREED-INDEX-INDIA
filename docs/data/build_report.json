@@ -1,56 +1,56 @@
 {
-  "generated_at": "2026-11-07T17:48:07.587513",
+  "generated_at": "2026-11-08T17:59:25.872488",
   "steps": {
     "momentum": {
       "status": "OK",
-      "rows": 4572,
+      "rows": 4573,
       "range": [
         "2008-03-14",
-        "2026-11-06"
+        "2026-11-08"
       ],
-      "latest": 1338.3900937500002
+      "latest": 1285.0764687500014
     },
     "volatility": {
       "status": "OK",
-      "rows": 4577,
+      "rows": 4578,
       "range": [
         "2008-03-03",
-        "2026-11-06"
+        "2026-11-08"
       ],
-      "latest": 17.469999313354492
+      "latest": 18.43000030517578
     },
     "strength_and_breadth": {
       "status": "OK",
       "n_constituents_used": 48,
       "n_requested": 48,
       "missing": [],
-      "breadth_rows": 7740,
-      "strength_rows": 7685,
-      "breadth_latest": 19.35023679137424,
+      "breadth_rows": 7741,
+      "strength_rows": 7686,
+      "breadth_latest": 12.55928464748801,
       "strength_latest": 1.0
     },
     "safe_haven": {
       "status": "OK",
       "bond_ticker_used": "LTGILTBEES.NS",
-      "rows": 1815,
+      "rows": 1816,
       "range": [
         "2018-10-05",
-        "2026-11-06"
+        "2026-11-08"
       ],
-      "latest": 0.11671240633655477,
+      "latest": 0.10064874629882459,
       "probe": {
         "LTGILTBEES.NS": {
-          "rows": 1837,
+          "rows": 1838,
           "from": "2018-05-11",
           "USED": true
         },
         "GILT5YBEES.NS": {
-          "rows": 1374,
+          "rows": 1375,
           "from": "2021-04-07",
           "USED": false
         },
         "EBBETF0433.NS": {
-          "rows": 413,
+          "rows": 414,
           "from": "2025-03-03",
           "USED": false
         }
