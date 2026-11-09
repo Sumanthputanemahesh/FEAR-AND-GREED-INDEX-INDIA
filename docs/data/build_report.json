@@ -1,23 +1,23 @@
 {
-  "generated_at": "2026-11-08T17:59:25.872488",
+  "generated_at": "2026-11-09T22:34:46.848160",
   "steps": {
     "momentum": {
       "status": "OK",
-      "rows": 4573,
+      "rows": 4572,
       "range": [
         "2008-03-14",
-        "2026-11-08"
+        "2026-11-06"
       ],
-      "latest": 1285.0764687500014
+      "latest": 1338.3900937500002
     },
     "volatility": {
       "status": "OK",
-      "rows": 4578,
+      "rows": 4577,
       "range": [
         "2008-03-03",
-        "2026-11-08"
+        "2026-11-06"
       ],
-      "latest": 18.43000030517578
+      "latest": 17.469999313354492
     },
     "strength_and_breadth": {
       "status": "OK",
@@ -26,18 +26,18 @@
       "missing": [],
       "breadth_rows": 7741,
       "strength_rows": 7686,
-      "breadth_latest": 12.55928464748801,
+      "breadth_latest": 15.468375556578922,
       "strength_latest": 1.0
     },
     "safe_haven": {
       "status": "OK",
       "bond_ticker_used": "LTGILTBEES.NS",
-      "rows": 1816,
+      "rows": 1815,
       "range": [
         "2018-10-05",
-        "2026-11-08"
+        "2026-11-06"
       ],
-      "latest": 0.10064874629882459,
+      "latest": 0.11671240633655477,
       "probe": {
         "LTGILTBEES.NS": {
           "rows": 1838,
@@ -58,14 +58,14 @@
     },
     "put_call": {
       "status": "OK",
-      "rows": 600,
-      "newly_fetched": 0,
+      "rows": 601,
+      "newly_fetched": 1,
       "days_unavailable": 30,
       "range": [
         "2024-06-05",
-        "2026-11-06"
+        "2026-11-09"
       ],
-      "latest_pcr": 1.4706,
+      "latest_pcr": 1.1477,
       "note": "PCR is INVERTED when normalised (high PCR = fear)."
     },
     "credit_spread": {
