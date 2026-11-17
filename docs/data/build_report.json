@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T03:45:44.807775",
+  "generated_at": "2026-11-17T03:49:16.086942",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -8,7 +8,7 @@
         "2008-03-14",
         "2026-11-17"
       ],
-      "latest": 1551.8668906249986
+      "latest": 1574.5840781250008
     },
     "volatility": {
       "status": "OK",
@@ -17,7 +17,7 @@
         "2008-03-03",
         "2026-11-17"
       ],
-      "latest": 15.352499961853027
+      "latest": 15.055000305175781
     },
     "strength_and_breadth": {
       "status": "OK",
@@ -26,7 +26,7 @@
       "missing": [],
       "breadth_rows": 7746,
       "strength_rows": 7691,
-      "breadth_latest": 5.562884479080715,
+      "breadth_latest": 4.8356117518079875,
       "strength_latest": 1.0
     },
     "safe_haven": {
@@ -37,7 +37,7 @@
         "2018-10-05",
         "2026-11-17"
       ],
-      "latest": 0.08529666509446354,
+      "latest": 0.08376645757955448,
       "probe": {
         "LTGILTBEES.NS": {
           "rows": 1843,
