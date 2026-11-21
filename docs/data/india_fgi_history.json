@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-20T20:36:20",
+  "generated_at": "2026-11-21T19:35:25",
   "core": [
     {
       "date": "2025-06-11",
@@ -4627,6 +4627,19 @@
         "breadth": 84.86,
         "safe_haven": 99.2,
         "put_call": 6.37
+      }
+    },
+    {
+      "date": "2026-11-20",
+      "composite_score": 61.35,
+      "zone": "Greed",
+      "components": {
+        "momentum": 100.0,
+        "volatility": 20.72,
+        "strength": 54.98,
+        "breadth": 90.44,
+        "safe_haven": 99.6,
+        "put_call": 2.39
       }
     }
   ],
@@ -9257,6 +9270,19 @@
         "breadth": 84.86,
         "safe_haven": 99.2,
         "put_call": 6.37
+      }
+    },
+    {
+      "date": "2026-11-20",
+      "composite_score": 61.35,
+      "zone": "Greed",
+      "components": {
+        "momentum": 100.0,
+        "volatility": 20.72,
+        "strength": 54.98,
+        "breadth": 90.44,
+        "safe_haven": 99.6,
+        "put_call": 2.39
       }
     }
   ]
