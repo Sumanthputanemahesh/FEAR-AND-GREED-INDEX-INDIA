@@ -3,805 +3,1177 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>India Sentiment Index</title>
-<meta name="description" content="Today's reading of fear and greed in Indian equities, measured against the NIFTY 50.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='4' fill='%23C6FF3D' stroke='%230A0B0F' stroke-width='4'/%3E%3C/svg%3E">
+<title>India Fear &amp; Greed Index</title>
+<meta name="description" content="A daily sentiment gauge for Indian equities, built from six independent market signals.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,470;9..144,560&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
 <style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
 :root {
-  --black: #0A0B0F;
-  --black-2: #13151C;
-  --white: #FFFFFF;
-  --paper: #FFFFFF;
-  --soft: #F4F6FA;
-  --line: #E4E7EE;
-  --ink: #0A0B0F;
-  --ink-2: #3F4657;
-  --mute: #5A6175;
-  --faint: #C9CED8;
-  --cobalt: #2F5BFF;
-  --lime: #C6FF3D;
-  --dark-line: #2A2E3D;
-  --on-dark: #F2F4F8;
-  --on-dark-mute: #8A92A6;
+  --paper: #faf9f6;
+  --panel: #f2f0ea;
+  --ink: #17140f;
+  --ink-soft: #4a453c;
+  --mute: #837c6d;
+  --hairline: rgba(23,20,15,0.12);
+  --hairline-strong: rgba(23,20,15,0.22);
+  --accent: #17140f;
 
-  --extreme-fear: #2F5BFF;
-  --fear: #6F8CFF;
-  --neutral: #8A92A6;
-  --greed: #9FD12E;
-  --extreme-greed: #C6FF3D;
+  --extreme-fear: #9e2a2b;
+  --fear: #c0703a;
+  --neutral: #a6924f;
+  --greed: #5c7c3f;
+  --extreme-greed: #35592f;
 
-  --display: "Space Grotesk", system-ui, sans-serif;
-  --sans: "DM Sans", system-ui, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, monospace;
-  --hand: "Caveat", cursive;
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
-*,*::before,*::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-a { color: var(--cobalt); }
-a:hover { color: var(--ink); }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 3px; border-radius: 6px; }
-.wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-.mono { font-family: var(--mono); }
-.hand { font-family: var(--hand); font-weight: 600; }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #15130f;
+    --panel: #1c1a15;
+    --ink: #ece7dc;
+    --ink-soft: #c4bcac;
+    --mute: #8c8574;
+    --hairline: rgba(236,231,220,0.14);
+    --hairline-strong: rgba(236,231,220,0.26);
+    --accent: #ece7dc;
 
-/* ---------- intro curtain + progress ---------- */
-@keyframes curtain { to { transform: translateY(-101%); } }
-@keyframes markpop { 0% { transform: scale(.3) rotate(0); } 70% { transform: scale(1.25) rotate(180deg); } 100% { transform: scale(1) rotate(180deg); } }
-.curtain { position: fixed; inset: 0; z-index: 60; background: var(--black); display: flex; align-items: center; justify-content: center; pointer-events: none; animation: curtain .75s cubic-bezier(.75,0,.2,1) .4s both; }
-.curtain span { width: 30px; height: 30px; background: var(--lime); border-radius: 5px; animation: markpop .5s ease-out both; }
-.progress { position: fixed; top: 0; left: 0; right: 0; height: 4px; background: var(--lime); transform-origin: 0 50%; transform: scaleX(var(--pg, 0)); z-index: 50; pointer-events: none; }
+    --extreme-fear: #c9524f;
+    --fear: #d2884f;
+    --neutral: #bfa964;
+    --greed: #7fa562;
+    --extreme-greed: #5c8853;
+  }
+}
 
-/* ---------- header ---------- */
-header.top { position: sticky; top: 0; z-index: 30; background: rgba(255,255,255,.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
-.top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 72px; flex-wrap: wrap; }
-.logo { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; }
-.logo .mark { width: 14px; height: 14px; background: var(--lime); border: 2px solid var(--ink); border-radius: 3px; transition: transform .5s cubic-bezier(.2,.7,.2,1); }
-.logo:hover .mark { transform: rotate(180deg); }
-nav.main { display: flex; gap: 4px; font-size: 15px; font-weight: 500; }
-nav.main a { color: var(--ink); text-decoration: none; padding: 12px 14px; transition: box-shadow .2s; }
-nav.main a:hover { box-shadow: inset 0 -3px 0 var(--cobalt); }
-.live-chip { font-family: var(--mono); font-size: 12px; color: var(--ink); background: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 8px; }
-.live-chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 0 rgba(198,255,61,.6); animation: glow 2.2s ease-in-out infinite; border: 1px solid #7DA51A; }
-@keyframes glow { 0%,100% { box-shadow: 0 0 0 0 rgba(198,255,61,0); } 50% { box-shadow: 0 0 0 6px rgba(198,255,61,.35); } }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  -webkit-font-smoothing: antialiased;
+}
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 
-/* ---------- hero ---------- */
-.hero { padding: 88px 0 40px; text-align: center; }
-.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--cobalt); margin: 0 0 22px; font-weight: 600; }
-h1.big { font-family: var(--display); font-weight: 700; letter-spacing: -0.045em; font-size: clamp(44px, 7.6vw, 92px); line-height: 1.0; margin: 0 0 22px; }
-h1.big .blue { color: var(--cobalt); display: block; }
-.lede { font-size: 18px; color: var(--ink-2); line-height: 1.6; max-width: 34em; margin: 0 auto 30px; }
-.btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; padding: 13px 22px; border-radius: 999px; text-decoration: none; transition: transform .2s, box-shadow .2s; border: 2px solid var(--ink); }
-.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(10,11,15,.18); }
-.btn.dark { background: var(--ink); color: var(--white); }
-.btn.dark:hover { color: var(--lime); }
-.btn.light { background: var(--white); color: var(--ink); }
-.btn.lime { background: var(--lime); color: var(--ink); border-color: var(--lime); }
-.scroll-note { margin-top: 56px; color: var(--cobalt); font-family: var(--hand); font-size: 26px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.scroll-note svg { animation: bob 1.8s ease-in-out infinite; }
-@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+a { color: inherit; }
 
-/* ---------- reading card (black) ---------- */
-.dark-card { background: var(--black); color: var(--on-dark); border-radius: 22px; padding: 48px; position: relative; overflow: hidden; }
-.reading { display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 56px; align-items: center; }
-@media (max-width: 900px) { .reading { grid-template-columns: 1fr; gap: 32px; } .dark-card { padding: 32px 22px; } }
-.dial { position: relative; max-width: 420px; width: 100%; margin: 0 auto; }
-.dial svg { display: block; width: 100%; height: auto; }
-.dial-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-.dial-num { font-family: var(--mono); font-weight: 600; font-size: clamp(64px, 9vw, 96px); line-height: 1; color: var(--white); }
-.dial-zone { font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; margin-top: 10px; font-weight: 600; }
-.dial-hand { text-align: center; font-family: var(--hand); font-size: 34px; color: var(--on-dark-mute); margin-top: -18px; min-height: 42px; }
-.r-eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--on-dark-mute); margin: 0 0 12px; }
-.r-eyebrow.scrub { color: var(--lime); }
-.r-head { font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.1; margin: 0 0 14px; }
-.r-head span { transition: color .3s; }
-.r-desc { color: #B8BFCE; font-size: 16px; line-height: 1.6; margin: 0 0 22px; max-width: 36em; }
-.pills { display: flex; flex-wrap: wrap; gap: 8px; }
-.pill { font-family: var(--mono); font-size: 11.5px; padding: 6px 11px; border-radius: 999px; border: 1px solid var(--dark-line); color: var(--on-dark-mute); transition: background .25s, color .25s, border-color .25s, transform .25s; }
-.pill.on { color: var(--black); font-weight: 600; transform: translateY(-1px); }
-.r-price { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--dark-line); display: flex; gap: 28px; flex-wrap: wrap; }
-.r-price div { display: flex; flex-direction: column; gap: 4px; }
-.r-price small { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--on-dark-mute); }
-.r-price b { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--white); }
-.r-price b.lime { color: var(--lime); }
+/* ============================================================
+   LAYOUT SHELL
+   ============================================================ */
+.shell { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
 
-/* ---------- timeline ---------- */
-.tl { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 18px; }
-@media (max-width: 760px) { .tl { grid-template-columns: repeat(2, 1fr); } }
-.tl-card { border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 16px; background: var(--white); transition: transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s, border-color .3s; }
-.tl-card:hover { transform: translateY(-4px); box-shadow: 0 20px 44px rgba(47,91,255,.18); border-color: var(--cobalt); }
-.tl-card small { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
-.tl-card b { display: block; font-family: var(--mono); font-size: 34px; font-weight: 600; margin: 8px 0 4px; }
-.tl-card span { font-size: 13px; color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
-.tl-card span i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.masthead {
+  border-bottom: 1px solid var(--hairline);
+  padding: 22px 0 18px;
+}
+.masthead-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  flex-wrap: wrap; gap: 8px 24px;
+}
+.wordmark {
+  font-family: var(--serif);
+  font-weight: 470;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+.wordmark em { font-style: italic; color: var(--mute); font-weight: 400; }
+.masthead-meta {
+  font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--mute); display: flex; gap: 18px; flex-wrap: wrap;
+}
+.masthead-meta b { color: var(--ink-soft); font-weight: 600; }
 
-/* ---------- pinned statement ---------- */
-.story { position: relative; height: 260vh; }
-.stage { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-.story-text { font-family: var(--display); font-weight: 700; letter-spacing: -0.035em; font-size: clamp(34px, 5.8vw, 72px); line-height: 1.08; margin: 0; max-width: 16ch; }
-.story-text .w { color: var(--faint); transition: color .4s ease; }
-.story-text .w.lit { color: var(--ink); }
-.story-text .w.hl.lit { color: var(--hlc); }
-.story-note { font-family: var(--hand); font-size: 30px; color: var(--cobalt); margin-top: 26px; opacity: 0; transform: translateY(10px); transition: opacity .6s, transform .6s; }
-.story-note.on { opacity: 1; transform: none; }
+/* ============================================================
+   HERO — asymmetric, not centered
+   ============================================================ */
+.hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 56px;
+  padding: 52px 0 44px;
+  border-bottom: 1px solid var(--hairline);
+  align-items: center;
+}
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; gap: 32px; padding: 36px 0; }
+}
 
-/* ---------- sections ---------- */
-.sec { padding: 56px 0; }
-.sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
-.sec-kicker { font-family: var(--hand); font-size: 26px; color: var(--cobalt); margin: 0 0 2px; }
-.sec-title { font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; font-size: clamp(28px, 3.6vw, 40px); margin: 0; line-height: 1.1; }
-.dark-card .sec-title { color: var(--white); }
-.dark-card .sec-kicker { color: var(--lime); }
-.sec-note { font-size: 14px; color: var(--mute); }
-.dark-card .sec-note { color: var(--on-dark-mute); }
+.hero-text .kicker {
+  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--mute); margin-bottom: 14px; display: block;
+}
+.hero-text h1 {
+  font-family: var(--serif);
+  font-weight: 380;
+  font-size: clamp(2.1rem, 4.4vw, 3.15rem);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  margin: 0 0 18px;
+}
+.hero-text p.dek {
+  font-size: 0.98rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  max-width: 46ch;
+  margin: 0 0 22px;
+}
 
-.toolbar { display: inline-flex; background: var(--black-2); border: 1px solid var(--dark-line); border-radius: 999px; padding: 4px; gap: 2px; }
-.range-btn { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--on-dark-mute); background: none; border: none; padding: 8px 14px; border-radius: 999px; cursor: pointer; transition: background .2s, color .2s, box-shadow .2s; }
-.range-btn:hover { color: var(--white); }
-.range-btn[aria-pressed="true"] { background: var(--lime); color: var(--black); box-shadow: 0 0 18px rgba(198,255,61,.4); }
+.score-block { display: flex; align-items: baseline; gap: 18px; margin-top: 6px; }
+.score-num {
+  font-family: var(--serif);
+  font-weight: 470;
+  font-size: clamp(4.4rem, 9vw, 6.4rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  transition: color 0.3s ease;
+}
+.score-side { display: flex; flex-direction: column; gap: 3px; }
+.score-zone {
+  font-size: 1.05rem; font-weight: 600; letter-spacing: -0.005em;
+  transition: color 0.3s ease;
+}
+.score-date { font-size: 0.78rem; color: var(--mute); }
+.score-asof-live { font-size: 0.72rem; color: var(--mute); }
+.score-asof-live.scrubbing { color: var(--ink-soft); font-weight: 500; }
+.score-asof-live.live-estimate { color: var(--fear); font-weight: 600; }
+.live-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--fear); margin-right: 5px; vertical-align: middle;
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .live-dot { animation: none; } }
 
-.axis-label { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--on-dark-mute); margin: 0 0 10px; }
-.chart-block { position: relative; }
+/* Gauge */
+.gauge-wrap { display: flex; flex-direction: column; align-items: center; }
+svg#gauge { width: 100%; max-width: 400px; height: auto; }
+.gauge-price { font-size: 0.82rem; color: var(--mute); margin-top: 6px; text-align: center; }
+.gauge-price b { color: var(--ink-soft); font-weight: 600; }
+
+/* ============================================================
+   TIMELINE STRIP
+   ============================================================ */
+.timeline {
+  display: flex; padding: 18px 0;
+  border-bottom: 1px solid var(--hairline);
+  overflow-x: auto;
+}
+.tl-item {
+  flex: 1 1 0; min-width: 96px;
+  padding: 0 18px; text-align: left;
+  border-left: 1px solid var(--hairline);
+}
+.tl-item:first-child { border-left: none; padding-left: 0; }
+.tl-label {
+  font-size: 0.68rem; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--mute); margin-bottom: 5px;
+}
+.tl-val { font-size: 1.25rem; font-weight: 600; font-family: var(--serif); }
+.tl-zone { font-size: 0.72rem; margin-top: 1px; color: var(--mute); }
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+.section { padding: 44px 0; border-bottom: 1px solid var(--hairline); }
+.section-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 26px; gap: 16px; flex-wrap: wrap;
+}
+.section-title {
+  font-family: var(--serif); font-weight: 470; font-size: 1.3rem;
+}
+.section-note { font-size: 0.78rem; color: var(--mute); max-width: 34ch; text-align: right; }
+
+/* ---- Components list ---- */
+.comp-list { border-top: 1px solid var(--hairline); }
+.comp-row {
+  display: block; width: 100%; text-align: left;
+  background: none; border: none; border-bottom: 1px solid var(--hairline);
+  padding: 16px 0; cursor: pointer; font: inherit; color: inherit;
+}
+.comp-row-top {
+  display: grid;
+  grid-template-columns: 22px minmax(140px,220px) 1fr 130px 56px;
+  align-items: center; gap: 18px;
+}
+@media (max-width: 760px) {
+  .comp-row-top { grid-template-columns: 18px 1fr 84px 40px; }
+  .comp-row-spark { display: none; }
+}
+.comp-chevron {
+  width: 8px; height: 8px; border-right: 1.5px solid var(--mute); border-bottom: 1.5px solid var(--mute);
+  transform: rotate(-45deg); transition: transform 0.25s ease; margin-top: -2px;
+}
+.comp-row[aria-expanded="true"] .comp-chevron { transform: rotate(45deg); margin-top: 2px; }
+.comp-name { font-weight: 600; font-size: 0.94rem; }
+.comp-track {
+  position: relative; height: 3px; background: var(--hairline-strong); border-radius: 0;
+}
+.comp-fill {
+  position: absolute; top: 0; left: 0; height: 100%;
+  background: var(--ink-soft); transition: width 0.4s ease;
+}
+.comp-marker {
+  position: absolute; top: -3.5px; width: 2px; height: 10px;
+  background: var(--zone-color, var(--ink)); transition: left 0.4s ease;
+}
+.comp-readout { text-align: right; font-family: var(--serif); font-size: 1.05rem; font-weight: 500; }
+.comp-readout .z { display: block; font-family: var(--sans); font-size: 0.68rem; color: var(--mute); font-weight: 500; margin-top: 1px; }
+.comp-row-spark { width: 100%; height: 28px; }
+
+.comp-detail {
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+}
+.comp-row[aria-expanded="true"] + .comp-detail { max-height: 160px; }
+.comp-detail-inner {
+  padding: 4px 0 20px 40px; display: grid; grid-template-columns: 1fr 220px; gap: 24px; align-items: center;
+}
+@media (max-width: 760px) {
+  .comp-detail-inner { grid-template-columns: 1fr; padding-left: 0; }
+}
+.comp-desc { font-size: 0.86rem; color: var(--ink-soft); line-height: 1.5; max-width: 52ch; }
+.comp-big-spark { width: 100%; height: 56px; }
+
+/* ---- Charts ---- */
+.chart-toolbar { display: flex; align-items: center; gap: 8px; }
+.range-btn {
+  font-family: var(--sans); font-size: 0.74rem; font-weight: 500; letter-spacing: 0.02em;
+  color: var(--mute); background: none; border: 1px solid transparent;
+  padding: 5px 10px; cursor: pointer; border-radius: 2px;
+}
+.range-btn:hover { color: var(--ink); }
+.range-btn[aria-pressed="true"] { color: var(--ink); border-color: var(--hairline-strong); }
+.range-btn:focus-visible, .comp-row:focus-visible, a:focus-visible { outline: 2px solid var(--ink-soft); outline-offset: 2px; }
+
+.chart-block { position: relative; margin-top: 6px; }
 .chart-block canvas { display: block; width: 100%; }
-.chart-fgi { height: 290px; }
-.chart-price { height: 150px; }
-.chart-intraday { height: 150px; }
-.tip { position: absolute; pointer-events: none; z-index: 5; background: var(--white); color: var(--ink); font-size: 12px; padding: 8px 12px; line-height: 1.5; border-radius: 10px; transform: translate(-50%, -112%); white-space: nowrap; opacity: 0; transition: opacity .12s; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
-.tip.show { opacity: 1; }
-.tip .d { font-family: var(--mono); font-size: 10.5px; color: var(--mute); text-transform: uppercase; letter-spacing: .06em; }
-.tip b { font-family: var(--mono); }
-.scrub-range { width: 100%; margin: 18px 0 0; appearance: none; -webkit-appearance: none; height: 3px; background: var(--dark-line); border-radius: 3px; outline: none; }
-.scrub-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--lime); cursor: pointer; box-shadow: 0 0 0 5px rgba(198,255,61,.18); }
-.scrub-range::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--lime); border: none; cursor: pointer; }
-.scrub-hint { font-family: var(--hand); font-size: 22px; color: var(--on-dark-mute); margin-top: 12px; }
-
-/* light card */
-.light-card { border: 1px solid var(--line); border-radius: 22px; padding: 36px; background: var(--white); }
-@media (max-width: 700px) { .light-card { padding: 24px 18px; } }
-
-/* zones list */
-.rows { border-top: 1px solid var(--line); }
-.zrow { display: grid; grid-template-columns: 60px 1fr 1fr; gap: 24px; align-items: baseline; padding: 26px 0; border-bottom: 1px solid var(--line); }
-@media (max-width: 760px) { .zrow { grid-template-columns: 44px 1fr; } .zrow p { grid-column: 2; } }
-.zrow .n { font-family: var(--mono); font-size: 12px; color: var(--cobalt); font-weight: 600; }
-.zrow h3 { font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; font-size: clamp(22px, 2.6vw, 30px); margin: 0; display: flex; align-items: center; gap: 12px; }
-.zrow h3 i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: none; }
-.zrow p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.55; }
-.zrow .range { font-family: var(--mono); font-size: 13px; color: var(--mute); }
-
-.disclaimer { background: var(--soft); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; font-size: 14px; color: var(--ink-2); line-height: 1.6; }
-
-footer.foot { background: var(--black); color: var(--on-dark); margin-top: 72px; padding: 56px 0 36px; }
-.foot-row { display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
-.foot .hand { color: var(--lime); font-size: 30px; }
-.foot small { color: var(--on-dark-mute); font-size: 13px; }
-.foot-base { border-top: 1px solid var(--dark-line); margin-top: 40px; padding-top: 22px; font-size: 13px; color: var(--on-dark-mute); line-height: 1.6; }
-
-/* ---------- scroll motion ---------- */
-.reveal { opacity: 0; transform: translate3d(0, 56px, 0); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d, 0ms); }
-.reveal.in { opacity: 1; transform: none; }
-.rise { animation: rise .9s cubic-bezier(.2,.7,.2,1) both; }
-@keyframes rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
-.d0 { animation-delay: .55s; } .d1 { animation-delay: .72s; } .d2 { animation-delay: .9s; } .d3 { animation-delay: 1.08s; } .d4 { animation-delay: 1.3s; }
-[data-zoom] { transform-origin: 50% 100%; will-change: transform; }
-.tick { transition: stroke .25s ease; }
-
-@media (max-width: 700px) {
-  nav.main { display: none; }
-  .wrap { padding: 0 16px; }
-  .hero { padding: 64px 0 28px; }
+.chart-fgi { height: 260px; }
+.chart-price { height: 130px; margin-top: 2px; }
+.chart-axis-label {
+  font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute);
+  margin-bottom: 8px;
 }
-@media (max-width: 900px) {
-  .story { height: auto; } .stage { position: relative; height: auto; padding: 96px 0; }
-  .story-text .w { color: var(--ink); } .story-text .w.hl { color: var(--hlc); } .story-note { opacity: 1; transform: none; }
+
+.crosshair-tip {
+  position: absolute; pointer-events: none; z-index: 5;
+  background: var(--ink); color: var(--paper);
+  font-size: 0.74rem; padding: 8px 11px; line-height: 1.5;
+  transform: translate(-50%, -110%); white-space: nowrap;
+  opacity: 0; transition: opacity 0.12s ease;
 }
+.crosshair-tip.show { opacity: 1; }
+.crosshair-tip .ct-date { color: var(--mute); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+.crosshair-tip b { font-family: var(--serif); }
+
+.scrub-hint { font-size: 0.74rem; color: var(--mute); margin-top: 10px; }
+
+/* Keyboard scrub slider (visually minimal, fully functional) */
+.scrub-range {
+  width: 100%; margin: 14px 0 0; appearance: none; height: 2px;
+  background: var(--hairline-strong); outline: none;
+}
+.scrub-range::-webkit-slider-thumb {
+  appearance: none; width: 11px; height: 11px; border-radius: 50%;
+  background: var(--ink); cursor: pointer; margin-top: -4.5px;
+}
+.scrub-range::-moz-range-thumb { width: 11px; height: 11px; border-radius: 50%; background: var(--ink); border: none; cursor: pointer; }
+
+/* ---- Methodology ---- */
+.method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+@media (max-width: 760px) { .method-grid { grid-template-columns: 1fr; gap: 24px; } }
+.method-grid h3 {
+  font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--mute); font-weight: 600; margin: 0 0 10px;
+}
+.method-grid p, .method-grid ol { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.65; margin: 0; }
+.method-grid ol { padding-left: 1.1em; }
+.method-grid li { margin-bottom: 4px; }
+.zone-key { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 14px; }
+.zone-key span { font-size: 0.76rem; color: var(--ink-soft); }
+.zone-key b { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+
+footer {
+  padding: 30px 0 50px;
+  font-size: 0.76rem; color: var(--mute); line-height: 1.7;
+}
+footer a { text-decoration: underline; text-decoration-color: var(--hairline-strong); text-underline-offset: 3px; }
+footer a:hover { text-decoration-color: var(--mute); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-  .curtain, .progress { display: none; }
-  .reveal { opacity: 1; transform: none; }
-  .story { height: auto; } .stage { position: relative; height: auto; padding: 96px 0; }
-  .story-text .w { color: var(--ink); } .story-text .w.hl { color: var(--hlc); } .story-note { opacity: 1; transform: none; }
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
-
-/* ===== extra motion ===== */
-.hero { position: relative; overflow: hidden; }
-.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; pointer-events: none; z-index: 0; will-change: transform; }
-.blob.b1 { width: 420px; height: 420px; background: rgba(47,91,255,.35); left: -120px; top: 40px; animation: drift1 14s ease-in-out infinite; }
-.blob.b2 { width: 360px; height: 360px; background: rgba(198,255,61,.45); right: -100px; top: 220px; animation: drift2 16s ease-in-out infinite; }
-@keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,40px) scale(1.15); } }
-@keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-70px,-30px) scale(1.1); } }
-.hero .wrap { position: relative; z-index: 1; }
-.word { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .08em; }
-.word > span { display: inline-block; transform: translateY(110%); animation: wordup .9s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: calc(.6s + var(--i) * 70ms); }
-@keyframes wordup { to { transform: none; } }
-.scribble { display: block; width: min(560px, 80%); height: 22px; margin: -6px auto 18px; overflow: visible; }
-.scribble path { stroke-dasharray: 700; stroke-dashoffset: 700; animation: draw 1.2s cubic-bezier(.6,0,.2,1) 1.6s forwards; }
-@keyframes draw { to { stroke-dashoffset: 0; } }
-.btn { position: relative; overflow: hidden; }
-.btn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%); transform: translateX(-120%); }
-.btn:hover::after { transition: transform .7s ease; transform: translateX(120%); }
-
-.ticker { overflow: hidden; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--soft); margin: 28px 0 8px; }
-.ticker-track { display: flex; width: max-content; animation: marquee 32s linear infinite; }
-.ticker:hover .ticker-track { animation-play-state: paused; }
-.ticker-item { display: flex; align-items: center; gap: 10px; padding: 14px 28px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); white-space: nowrap; }
-.ticker-item b { color: var(--ink); font-weight: 600; }
-.ticker-item i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
-.ticker-sep { color: var(--faint); }
-@keyframes marquee { to { transform: translateX(-50%); } }
-
-.dark-card { --mx: 50%; --my: 50%; }
-.dark-card::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(420px circle at var(--mx) var(--my), rgba(198,255,61,.10), transparent 60%); opacity: 0; transition: opacity .4s; z-index: 0; }
-.dark-card:hover::before { opacity: 1; }
-.dark-card > * { position: relative; z-index: 1; }
-.tilt { transition: transform .5s cubic-bezier(.2,.7,.2,1); transform-style: preserve-3d; }
-
-.zrow { position: relative; transition: padding-left .35s cubic-bezier(.2,.7,.2,1); }
-.zrow::before { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--zc); transform: scaleX(0); transform-origin: left; transition: transform .9s cubic-bezier(.2,.7,.2,1) .2s; }
-.zrow.in::before { transform: scaleX(1); }
-.zrow:hover { padding-left: 14px; }
-.zrow h3 i { transition: transform .5s cubic-bezier(.2,.7,.2,1); }
-.zrow:hover h3 i { transform: rotate(180deg) scale(1.3); }
-.tl-card b { transition: color .3s; }
-.sec-title .word > span { transform: translateY(110%); animation: none; transition: transform .9s cubic-bezier(.2,.8,.2,1); transition-delay: calc(var(--i) * 60ms); }
-.sec-title.in .word > span { transform: none; }
-.sec-title.reveal, .sec-title.wsplit { opacity: 1; transform: none; }
-.pill.on { animation: pop .45s cubic-bezier(.2,.9,.3,1.4); }
-@keyframes pop { 0% { transform: scale(.85); } 100% { transform: translateY(-1px) scale(1); } }
-.dial-num { transition: text-shadow .4s; }
-@media (prefers-reduced-motion: reduce) { .word > span { transform: none !important; } .scribble path { stroke-dashoffset: 0; } .ticker-track { animation: none; } }
 </style>
 </head>
 <body>
-<div class="curtain" aria-hidden="true"><span></span></div>
-<div class="progress" id="progress" aria-hidden="true"></div>
 
-<header class="top">
-  <div class="wrap top-row">
-    <a class="logo" href="#"><span class="mark" aria-hidden="true"></span>Sentiment Index</a>
-    <nav class="main" aria-label="Main">
-      <a href="#reading">Today</a>
-      <a href="#history">History</a>
-      <a href="#zones">How to read it</a>
-    </nav>
-    <span class="live-chip"><i></i><span id="chip-text">Loading</span></span>
-  </div>
-</header>
+<div class="shell">
+  <header class="masthead">
+    <div class="masthead-row">
+      <div class="wordmark">India Fear &amp; Greed <em>Index</em></div>
+      <div class="masthead-meta" id="masthead-meta">
+        <span><b id="mh-history">—</b> days of history</span>
+        <span><b id="mh-components">—</b> signals</span>
+        <span><b id="mh-updated">—</b></span>
+      </div>
+    </div>
+  </header>
 
-<main>
   <section class="hero">
-    <span class="blob b1" aria-hidden="true"></span><span class="blob b2" aria-hidden="true"></span>
-    <div class="wrap">
-      <p class="eyebrow rise d0">India · NIFTY 50 · updated every trading day</p>
-      <h1 class="big" id="hero-h1" data-split>Markets have moods.<span class="blue">Here is India's today.</span></h1>
-      <svg class="scribble" viewBox="0 0 560 22" preserveAspectRatio="none" aria-hidden="true"><path d="M6 14 C 120 4, 260 20, 380 9 S 520 6, 554 12" fill="none" stroke="#C6FF3D" stroke-width="6" stroke-linecap="round"/></svg>
-      <p class="lede rise d2">A single 0 to 100 reading of fear and greed in Indian equities, measured against the NIFTY 50 and rebuilt every trading day from public market data.</p>
-      <div class="btns rise d3">
-        <a class="btn dark" href="#reading">See today's reading <span aria-hidden="true">→</span></a>
-        <a class="btn light" href="#history">Explore the history</a>
-      </div>
-      <div class="scroll-note rise d4">scroll to see today's mood
-        <svg width="16" height="26" viewBox="0 0 16 26" fill="none" aria-hidden="true"><path d="M8 1v22M1.5 17L8 24l6.5-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-    </div>
-  </section>
-
-  <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
-
-  <section class="sec" id="reading" style="padding-top: 24px;">
-    <div class="wrap">
-      <div class="dark-card" data-zoom id="reading-card">
-        <div class="reading tilt" id="reading-inner">
-          <div>
-            <div class="dial" id="dial">
-              <svg viewBox="0 0 200 200" role="img" aria-label="Sentiment dial" id="dial-svg"></svg>
-              <div class="dial-center">
-                <span class="dial-num" id="score-num">--</span>
-                <span class="dial-zone" id="score-zone">Loading</span>
-              </div>
-            </div>
-            <div class="dial-hand" id="dial-hand"></div>
-          </div>
-          <div>
-            <p class="r-eyebrow" id="r-eyebrow">Loading</p>
-            <h2 class="r-head" id="r-head">Reading the market…</h2>
-            <p class="r-desc" id="r-desc"></p>
-            <div class="pills" id="pills"></div>
-            <div class="r-price">
-              <div><small>NIFTY 50</small><b class="lime" id="price-now">--</b></div>
-              <div><small>Reading date</small><b id="price-date">--</b></div>
-            </div>
-          </div>
+    <div class="hero-text">
+      <span class="kicker">Market sentiment, quantified daily</span>
+      <h1>What is the market feeling right now?</h1>
+      <p class="dek">Six independent signals — momentum, volatility, breadth, safe-haven demand and options positioning — collapsed into a single 0–100 reading of fear or greed in Indian equities, rebuilt every trading day from public market data.</p>
+      <div class="score-block">
+        <div class="score-num tnum" id="score-num">—</div>
+        <div class="score-side">
+          <div class="score-zone" id="score-zone">Loading…</div>
+          <div class="score-date" id="score-date"></div>
+          <div class="score-asof-live" id="score-live-tag"></div>
         </div>
       </div>
-      <div class="tl" id="timeline" aria-label="Reading at earlier points in time"></div>
+    </div>
+    <div class="gauge-wrap">
+      <div id="gauge-mount"></div>
+      <div class="gauge-price" id="gauge-price"></div>
     </div>
   </section>
 
-  <section class="story" id="story">
-    <div class="stage">
-      <div class="wrap">
-        <p class="eyebrow" style="margin-bottom: 28px;">Today, in one sentence</p>
-        <p class="story-text" id="story-text"></p>
-        <p class="story-note" id="story-note">the mood, in plain words</p>
-      </div>
+  <div class="timeline" id="timeline" aria-label="Score at earlier points in time"></div>
+
+  <section class="section" id="intraday-section" style="display:none;">
+    <div class="section-head">
+      <div class="section-title">Today so far</div>
+      <div class="section-note" id="intraday-note"></div>
+    </div>
+    <div class="chart-axis-label">Live estimate through today's session — updates hourly while the market is open</div>
+    <div class="chart-block chart-intraday" id="chart-intraday-wrap" style="height:140px;">
+      <canvas id="chart-intraday"></canvas>
     </div>
   </section>
 
-  <section class="sec" id="intraday-section" style="display:none;">
-    <div class="wrap">
-      <div class="dark-card" data-zoom>
-        <div class="sec-head">
-          <div>
-            <p class="sec-kicker">live, every hour</p>
-            <h2 class="sec-title" data-split>Today so far</h2>
-          </div>
-          <div class="sec-note" id="intraday-note"></div>
-        </div>
-        <div class="chart-block chart-intraday"><canvas id="chart-intraday"></canvas></div>
-      </div>
+  <section class="section">
+    <div class="section-head">
+      <div class="section-title">The six signals</div>
+      <div class="section-note">Each converted to a percentile rank against its own trailing 252-day range. Click a row for detail.</div>
     </div>
+    <div class="comp-list" id="comp-list" role="list"></div>
   </section>
 
-  <section class="sec" id="history">
-    <div class="wrap">
-      <div class="dark-card" data-zoom>
-        <div class="sec-head">
-          <div>
-            <p class="sec-kicker">drag to travel back</p>
-            <h2 class="sec-title" data-split>The index against the market</h2>
-          </div>
-          <div class="toolbar" id="range-toolbar" role="group" aria-label="Chart date range"></div>
-        </div>
-        <p class="axis-label">Sentiment reading</p>
-        <div class="chart-block chart-fgi" id="chart-fgi-wrap">
-          <canvas id="chart-fgi"></canvas>
-          <div class="tip" id="tip"></div>
-        </div>
-        <p class="axis-label" style="margin-top: 28px;">NIFTY 50, rebased to 100 at range start</p>
-        <div class="chart-block chart-price"><canvas id="chart-price"></canvas></div>
-        <label class="visually-hidden" for="scrub-range" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Scrub through history</label>
-        <input type="range" id="scrub-range" class="scrub-range" min="0" max="100" value="100" step="1">
-        <div class="scrub-hint">hover, drag or slide, and the dial above follows</div>
-      </div>
+  <section class="section">
+    <div class="section-head">
+      <div class="section-title">Index history, against the market it measures</div>
+      <div class="chart-toolbar" id="range-toolbar" role="group" aria-label="Chart date range"></div>
     </div>
+    <div class="chart-axis-label">Fear &amp; greed composite — drag to scrub through history</div>
+    <div class="chart-block chart-fgi" id="chart-fgi-wrap">
+      <canvas id="chart-fgi"></canvas>
+      <div class="crosshair-tip" id="crosshair-tip"></div>
+    </div>
+    <div class="chart-axis-label" style="margin-top:26px;">Nifty 50, rebased to 100 at range start</div>
+    <div class="chart-block chart-price" id="chart-price-wrap">
+      <canvas id="chart-price"></canvas>
+    </div>
+    <label class="visually-hidden" for="scrub-range">Scrub through history by date</label>
+    <input type="range" id="scrub-range" class="scrub-range" min="0" max="100" value="100" step="1">
+    <div class="scrub-hint">Hover or drag the chart above — or use the slider — to see the gauge and every signal as they stood on any past date.</div>
   </section>
 
-  <section class="sec" id="zones">
-    <div class="wrap">
-      <p class="sec-kicker reveal">five moods</p>
-      <h2 class="sec-title" data-split style="margin-bottom: 28px;">How to read it</h2>
-      <div class="rows" id="zone-rows"></div>
-      <div class="disclaimer reveal" style="margin-top: 40px;"><b>Disclaimer.</b> For information and education only. Not investment advice, research, or a recommendation to buy or sell any security. Past readings do not predict future returns. Do your own research or consult a SEBI-registered adviser.</div>
-    </div>
-  </section>
-</main>
-
-<footer class="foot">
-  <div class="wrap">
-    <div class="foot-row">
+  <section class="section" style="border-bottom:none;">
+    <div class="section-head"><div class="section-title">Method &amp; caveats</div></div>
+    <div class="method-grid">
       <div>
-        <div class="logo" style="color: var(--white);"><span class="mark" aria-hidden="true" style="border-color: var(--white);"></span>Sentiment Index</div>
-        <small>Bengaluru, India</small>
-        <div class="hand" style="margin-top: 10px;">markets have moods</div>
+        <h3>How the composite is built</h3>
+        <ol>
+          <li>Each of the six raw signals is ranked against its own trailing 252 trading days.</li>
+          <li>That rank becomes a 0–100 score — the percentile of days it beats.</li>
+          <li>Volatility and put/call are inverted, so a high score always means greed.</li>
+          <li>The composite is the equal-weighted mean of whichever scores are available that day.</li>
+        </ol>
+        <div class="zone-key">
+          <span><b style="background:var(--extreme-fear)"></b>0–25 Extreme Fear</span>
+          <span><b style="background:var(--fear)"></b>26–45 Fear</span>
+          <span><b style="background:var(--neutral)"></b>46–55 Neutral</span>
+          <span><b style="background:var(--greed)"></b>56–75 Greed</span>
+          <span><b style="background:var(--extreme-greed)"></b>76–100 Extreme Greed</span>
+        </div>
       </div>
-      <div style="display:flex; gap: 40px; flex-wrap: wrap; font-size: 14px;">
-        <div style="display:flex; flex-direction:column; gap: 8px;">
-          <b style="font-size: 13px;">On this page</b>
-          <a href="#reading" style="color: var(--on-dark-mute); text-decoration: none;">Today</a>
-          <a href="#history" style="color: var(--on-dark-mute); text-decoration: none;">History</a>
-          <a href="#zones" style="color: var(--on-dark-mute); text-decoration: none;">How to read it</a>
-        </div>
-        <div style="display:flex; flex-direction:column; gap: 8px;">
-          <b style="font-size: 13px;">Other markets</b>
-          <a href="https://sumanthputanemahesh.github.io/UK-fear-and-greed-index-/" style="color: var(--on-dark-mute); text-decoration: none;">United Kingdom</a>
-        </div>
+      <div>
+        <h3>Sources &amp; limitations</h3>
+        <p>
+          Built entirely from free data — Yahoo Finance for price, volatility (India VIX) and constituent-level
+          breadth; NSE's own F&amp;O bhavcopy, parsed directly, for a native Nifty options put/call ratio;
+          a gilt ETF standing in for bond returns. A credit-spread component is deliberately omitted — no free,
+          liquid, daily India high-yield-versus-investment-grade series exists. Same construction methodology as
+          the companion <a href="https://sumanthputanemahesh.github.io/UK-fear-and-greed-index-/">UK index</a> —
+          see the <a href="https://github.com/Sumanthputanemahesh/FEAR-AND-GREED-INDEX-INDIA">repository</a>
+          for exact sources. Not investment advice.
+        </p>
       </div>
     </div>
-    <div class="foot-base">Index readings are information, not investment advice. NIFTY 50 is a trade mark of its owner and is named only to describe the market measured. Data refreshes automatically on trading days.</div>
-  </div>
-</footer>
+  </section>
+
+  <footer>
+    Data refreshes automatically on trading days. Companion index for
+    <a href="https://sumanthputanemahesh.github.io/UK-fear-and-greed-index-/">UK equities</a>.
+  </footer>
+</div>
 
 <script>
 "use strict";
+
+/* ============================================================
+   CONFIG — the only block that differs between markets
+   ============================================================ */
 const CONFIG = {
-  indexLabel: "NIFTY 50",
+  market: "India",
+  indexLabel: "Nifty 50",
   priceKey: "nifty_close",
   latestUrl: "data/latest.json",
   coreUrl: "data/india_fgi_core.csv",
   extendedUrl: "data/india_fgi_extended.csv",
   priceUrl: "data/yf_raw/nifty50.csv",
-  componentKeys: ["momentum","volatility","strength","breadth","safe_haven","put_call"],
+  repoUrl: "https://github.com/Sumanthputanemahesh/FEAR-AND-GREED-INDEX-INDIA",
+  components: [
+    { key: "momentum",      name: "Market Momentum",   desc: "Where the index sits against its own 125-day moving average. Persistently above trend reads as greed; below, as fear." },
+    { key: "volatility",    name: "Volatility",        desc: "India VIX, inverted — calm, low-volatility markets read as greed, turbulent ones as fear." },
+    { key: "strength",      name: "Price Strength",    desc: "The share of constituents making fresh 252-day highs versus lows. A market where strength is narrow reads as fear." },
+    { key: "breadth",       name: "Market Breadth",    desc: "Net advancing versus declining constituents, smoothed over 10 days — a read on how broadly a move is shared." },
+    { key: "safe_haven",    name: "Safe Haven Demand", desc: "Equity returns relative to a gilt ETF over 20 days. Capital rotating into government bonds signals fear." },
+    { key: "put_call",      name: "Put/Call Ratio",    desc: "Nifty index-options positioning from NSE's own bhavcopy, inverted — a rise in put buying relative to calls signals hedging against a fall, i.e. fear." },
+  ],
 };
+
+/* ============================================================
+   SHARED ENGINE (identical across markets)
+   ============================================================ */
 const ZONES = [
-  { lo: 0,  hi: 25,  key: "Extreme Fear",  cssvar: "--extreme-fear",  rgb: "47,91,255",   hand: "running scared", head: "running scared.", desc: "deep in the extreme fear band. Sellers are in control and investors are bracing for worse." },
-  { lo: 25, hi: 45,  key: "Fear",          cssvar: "--fear",          rgb: "111,140,255", hand: "nervous",        head: "nervous.",        desc: "in the fear band. Caution outweighs conviction and investors lean defensive." },
-  { lo: 45, hi: 55,  key: "Neutral",       cssvar: "--neutral",       rgb: "138,146,166", hand: "on the fence",   head: "on the fence.",   desc: "in the neutral band. No strong mood either way." },
-  { lo: 55, hi: 75,  key: "Greed",         cssvar: "--greed",         rgb: "159,209,46",  hand: "feeling bold",   head: "feeling bold.",   desc: "in the greed band. Risk appetite is up and buyers have the upper hand." },
-  { lo: 75, hi: 100, key: "Extreme Greed", cssvar: "--extreme-greed", rgb: "198,255,61",  hand: "euphoric",       head: "euphoric.",       desc: "in the extreme greed band. Optimism is running hot, which has often come before pullbacks." },
+  { lo: 0,  hi: 25,  key: "Extreme Fear",  cssvar: "--extreme-fear" },
+  { lo: 25, hi: 45,  key: "Fear",          cssvar: "--fear" },
+  { lo: 45, hi: 55,  key: "Neutral",       cssvar: "--neutral" },
+  { lo: 55, hi: 75,  key: "Greed",         cssvar: "--greed" },
+  { lo: 75, hi: 100, key: "Extreme Greed", cssvar: "--extreme-greed" },
 ];
-const ZONE_RANGE_TXT = ["0 to 25", "26 to 45", "46 to 55", "56 to 75", "76 to 100"];
-function zoneOf(s) { if (s == null || isNaN(s)) return null; return ZONES.find(z => s <= z.hi) || ZONES[ZONES.length - 1]; }
-const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
-function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-function clamp01(v) { return Math.max(0, Math.min(1, v)); }
-function fmtScore(v) { return v == null || isNaN(v) ? "--" : Number(v).toFixed(0); }
-function fmtDate(d) { if (!d) return ""; return new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }); }
-function fmtPrice(p) { return p ? Number(p).toLocaleString("en-IN", { maximumFractionDigits: 1 }) : "--"; }
+function zoneOf(score) {
+  if (score === null || score === undefined || isNaN(score)) return null;
+  return ZONES.find(z => score <= z.hi) || ZONES[ZONES.length - 1];
+}
+const ZONE_RGB = {
+  "Extreme Fear": "158,42,43", "Fear": "192,112,58", "Neutral": "166,146,79",
+  "Greed": "92,124,63", "Extreme Greed": "53,89,47",
+};
+function zoneColor(key) {
+  const z = ZONES.find(z => z.key === key);
+  return z ? getComputedStyle(document.documentElement).getPropertyValue(z.cssvar).trim() : "#888";
+}
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isDark = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
 function parseCSV(text) {
-  const lines = text.trim().split("\n"); const h = lines[0].split(","); if (h[0] === "") h[0] = "Date";
-  return lines.slice(1).map(l => { const c = l.split(","); const r = {}; h.forEach((k, i) => r[k] = c[i]); return r; });
+  const lines = text.trim().split("\n");
+  const headers = lines[0].split(",");
+  // The pipeline's CSV export sometimes leaves the date/index column's header
+  // blank (a pandas quirk when the index has no explicit .name set) — treat
+  // an empty first header as "Date" so every CSV parses consistently
+  // regardless of which script produced it.
+  if (headers[0] === "") headers[0] = "Date";
+  return lines.slice(1).map(line => {
+    const cells = line.split(",");
+    const row = {};
+    headers.forEach((h, i) => { row[h] = cells[i]; });
+    return row;
+  });
 }
 
-/* ============ tick dial ============ */
-const DIAL = { cx: 100, cy: 100, step: 2 };
-function dialDeg(s) { return 225 - s * 2.7; }
-function dialXY(deg, r) { const a = deg * Math.PI / 180; return [DIAL.cx + r * Math.cos(a), DIAL.cy - r * Math.sin(a)]; }
-let TICKS = [];
-function buildDial() {
-  const svg = document.getElementById("dial-svg");
-  let h = "";
-  for (let s = 0; s <= 100; s += DIAL.step) {
-    const major = s % 10 === 0;
-    const d = dialDeg(s);
-    const [x1, y1] = dialXY(d, 94), [x2, y2] = dialXY(d, major ? 76 : 84);
-    h += `<line class="tick" data-s="${s}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#2A2E3D" stroke-width="3" stroke-linecap="round"/>`;
+/* ---- eased needle / number animation ---- */
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function animateValue(from, to, duration, onFrame, onDone) {
+  if (prefersReducedMotion() || duration === 0) { onFrame(to); if (onDone) onDone(); return; }
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = easeOutCubic(t);
+    onFrame(from + (to - from) * eased);
+    if (t < 1) requestAnimationFrame(tick); else if (onDone) onDone();
   }
-  h += `<circle id="dial-halo" r="4.5" fill="#FFFFFF" opacity="0"/><circle id="dial-dot" r="4.5" fill="#FFFFFF"/>`;
-  svg.innerHTML = h;
-  TICKS = Array.from(svg.querySelectorAll(".tick"));
-}
-let dialScore = null, dialToken = 0;
-function setDial(score) {
-  dialScore = score;
-  TICKS.forEach(t => {
-    const s = +t.dataset.s;
-    const z = zoneOf(s);
-    t.setAttribute("stroke", s <= score + 0.001 ? cssVar(z.cssvar) : "#2A2E3D");
-  });
-  const [x, y] = dialXY(dialDeg(score), 66);
-  const dot = document.getElementById("dial-dot"), halo = document.getElementById("dial-halo");
-  dot.setAttribute("cx", x.toFixed(2)); dot.setAttribute("cy", y.toFixed(2));
-  halo.setAttribute("cx", x.toFixed(2)); halo.setAttribute("cy", y.toFixed(2));
-}
-function animateDial(to, ms) {
-  const tok = ++dialToken;
-  if (!ms || reduced()) { setDial(to); return; }
-  const from = dialScore == null ? 0 : dialScore, t0 = performance.now();
-  (function step(now) {
-    if (tok !== dialToken) return;
-    const t = Math.min(1, (now - t0) / ms);
-    setDial(from + (to - from) * easeOutCubic(t));
-    if (t < 1) requestAnimationFrame(step);
-  })(t0);
+  requestAnimationFrame(tick);
 }
 
-/* ============ state ============ */
-let LATEST = null, INTRADAY = [], DISPLAY_LATEST = null, usingLive = false;
-let CORE = [], ROWS = [], EXT_BY_DATE = new Map(), PRICES = [];
-let mode = "live", fgiChart = null, priceChart = null, rangeDays = null, historyShown = false;
-let countToken = 0, firstRender = true;
+/* ============================================================
+   GAUGE (hand-built SVG)
+   ============================================================ */
+let currentGaugeScore = null;
+function buildGaugeSVG() {
+  const cx = 200, cy = 190, r = 158, trackW = 3;
+  return `<svg id="gauge" viewBox="-55 -28 510 258" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Fear and greed gauge">
+    <g id="gauge-track"></g>
+    <g id="gauge-ticks"></g>
+    <g id="gauge-zone-labels" style="font-family:${CONFIG.__sansStack}; font-size:9.5px; letter-spacing:0.06em;"></g>
+    <line id="gauge-needle" x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy - r + 30}" stroke="currentColor" stroke-width="1.4" />
+    <circle id="gauge-pivot" cx="${cx}" cy="${cy}" r="3.5" fill="currentColor" />
+  </svg>`;
+}
+const GAUGE = { cx: 200, cy: 190, r: 158 };
+function gaugeXY(deg, rad) {
+  const rr = (deg * Math.PI) / 180;
+  return [GAUGE.cx + rad * Math.cos(rr), GAUGE.cy - rad * Math.sin(rr)];
+}
+function scoreToDeg(s) { return 180 - (s / 100) * 180; }
 
-function renderReading(row) {
-  const s = row.composite, z = zoneOf(s);
-  const zc = z ? cssVar(z.cssvar) : "#fff";
-  const num = document.getElementById("score-num");
-  if (firstRender && !reduced()) {
-    const tok = ++countToken; const t0 = performance.now();
-    (function step(now) { if (tok !== countToken) return; const t = Math.min(1, (now - t0) / 1500); num.textContent = (s * easeOutCubic(t)).toFixed(0); if (t < 1) requestAnimationFrame(step); })(t0);
-  } else { countToken++; num.textContent = fmtScore(s); }
-  num.style.textShadow = `0 0 40px ${zc}66`;
-  const zEl = document.getElementById("score-zone"); zEl.textContent = z ? z.key : "--"; zEl.style.color = zc;
-  document.getElementById("dial-hand").textContent = z ? z.hand : "";
-  const eb = document.getElementById("r-eyebrow");
-  eb.classList.toggle("scrub", mode === "scrub");
-  if (mode === "scrub") eb.textContent = "Looking back · " + fmtDate(row.date);
-  else if (usingLive) eb.textContent = "Live estimate · " + DISPLAY_LATEST.liveTime + " UTC";
-  else eb.textContent = "Close of " + fmtDate(row.date);
-  document.getElementById("r-head").innerHTML = z ? `Indian investors ${mode === "scrub" ? "were" : "are"} <span style="color:${zc}">${z.head}</span>` : "";
-  document.getElementById("r-desc").textContent = z ? `A reading of ${fmtScore(s)} sits ${z.desc}` : "";
-  document.querySelectorAll(".pill").forEach((p, i) => {
-    const on = z && ZONES[i].key === z.key;
-    p.classList.toggle("on", on);
-    p.style.background = on ? cssVar(ZONES[i].cssvar) : "transparent";
-    p.style.borderColor = on ? cssVar(ZONES[i].cssvar) : "";
-    p.style.color = on ? "#0A0B0F" : (i >= 3 ? cssVar(ZONES[i].cssvar) : "");
+function initGaugeStatic() {
+  const track = document.getElementById("gauge-track");
+  const ticks = document.getElementById("gauge-ticks");
+  const labels = document.getElementById("gauge-zone-labels");
+  let trackHtml = "";
+  ZONES.forEach(z => {
+    const c1 = gaugeXY(scoreToDeg(z.lo), GAUGE.r);
+    const c2 = gaugeXY(scoreToDeg(z.hi), GAUGE.r);
+    trackHtml += `<path d="M ${c1[0]} ${c1[1]} A ${GAUGE.r} ${GAUGE.r} 0 0 0 ${c2[0]} ${c2[1]}"
+      stroke="var(${z.cssvar})" stroke-width="3" fill="none" stroke-opacity="0.9" data-zone="${z.key}"/>`;
   });
-  document.getElementById("price-now").textContent = fmtPrice(row.price);
-  document.getElementById("price-date").textContent = row.date ? new Date(row.date + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "--";
-  animateDial(s, mode === "scrub" ? 0 : (firstRender ? 1500 : 450));
-  firstRender = false;
+  track.innerHTML = trackHtml;
+
+  let tickHtml = "";
+  for (let s = 0; s <= 100; s += 5) {
+    const deg = scoreToDeg(s);
+    const major = s % 25 === 0;
+    const p1 = gaugeXY(deg, GAUGE.r + 8);
+    const p2 = gaugeXY(deg, GAUGE.r + (major ? 15 : 11));
+    tickHtml += `<line x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}"
+      stroke="var(--mute)" stroke-width="${major ? 1.2 : 0.7}" opacity="${major ? 0.8 : 0.4}"/>`;
+    if (major) {
+      const lp = gaugeXY(deg, GAUGE.r + 27);
+      tickHtml += `<text x="${lp[0]}" y="${lp[1] + 3}" text-anchor="middle" fill="var(--mute)" font-size="10">${s}</text>`;
+    }
+  }
+  ticks.innerHTML = tickHtml;
+
+  const labelDefs = [
+    { t: "EXTREME FEAR", mid: 12.5 }, { t: "FEAR", mid: 35 }, { t: "NEUTRAL", mid: 50 },
+    { t: "GREED", mid: 65 }, { t: "EXTREME GREED", mid: 87.5 },
+  ];
+  let labelHtml = "";
+  labelDefs.forEach(l => {
+    const deg = scoreToDeg(l.mid);
+    const p = gaugeXY(deg, GAUGE.r + 42);
+    const tangent = deg - 90;
+    const anchor = "middle";
+    labelHtml += `<text data-zonelabel="${l.t}" x="${p[0]}" y="${p[1]}" text-anchor="${anchor}" fill="var(--mute)"
+      transform="rotate(${-tangent} ${p[0]} ${p[1]})">${l.t}</text>`;
+  });
+  labels.innerHTML = labelHtml;
 }
-function buildPills() {
-  document.getElementById("pills").innerHTML = ZONES.map((z, i) => `<span class="pill">${ZONE_RANGE_TXT[i]} ${z.key.toLowerCase()}</span>`).join("");
+
+function setGaugeScoreImmediate(score) {
+  currentGaugeScore = score;
+  const needle = document.getElementById("gauge-needle");
+  if (!needle) return;
+  const deg = scoreToDeg(score);
+  const tip = gaugeXY(deg, GAUGE.r - 12);
+  needle.setAttribute("x2", tip[0]);
+  needle.setAttribute("y2", tip[1]);
+  const z = zoneOf(score);
+  document.querySelectorAll("[data-zonelabel]").forEach(el => {
+    el.setAttribute("fill", el.dataset.zonelabel === (z ? z.key.toUpperCase() : "") ? `var(${z.cssvar})` : "var(--mute)");
+    el.style.fontWeight = el.dataset.zonelabel === (z ? z.key.toUpperCase() : "") ? "700" : "500";
+  });
 }
+function animateGaugeTo(score, duration) {
+  const from = currentGaugeScore === null ? score : currentGaugeScore;
+  animateValue(from, score, duration, (v) => setGaugeScoreImmediate(v));
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let LATEST = null;        // official, close-based reading (from latest.json)
+let INTRADAY_ROWS = [];   // today's hourly live-estimate points (from intraday.json), if any
+let DISPLAY_LATEST = null; // whichever of LATEST / latest intraday point is more current — what's actually shown
+let usingLiveEstimate = false; // true when DISPLAY_LATEST came from intraday.json, not the settled close
+let CORE_ROWS = [];       // parsed core.csv (long history, subset of components)
+let DISPLAY_ROWS = [];    // CORE_ROWS, with today's row overwritten (or appended, if the
+                           // official daily build hasn't run yet) to match DISPLAY_LATEST —
+                           // what the chart and scrub actually use, so they never lag or
+                           // disagree with the hero
+let EXT_ROWS = [];        // parsed extended.csv (full component set, shorter)
+let EXT_BY_DATE = new Map(); // date -> EXT_ROWS entry, for merging into CORE-derived scrub rows
+let PRICE_ROWS = [];      // {date, price}
+let displayMode = "live"; // "live" | "scrub"
+let scrubIndex = null;
+let fgiChart = null, priceChart = null;
+let currentRangeDays = null; // null = MAX
+
+function fmtScore(v) { return v === null || v === undefined || isNaN(v) ? "—" : v.toFixed(0); }
+function fmtDate(d) {
+  if (!d) return "";
+  const dt = new Date(d + "T00:00:00");
+  return dt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+/* ---- render hero + hairline elements for a given "state row" ---- */
+function renderHeroFromRow(row, sourceLabel) {
+  const score = row.composite;
+  const zone = row.zone;
+  const z = zoneOf(score);
+  const zc = z ? `var(${z.cssvar})` : "var(--ink)";
+
+  document.getElementById("score-num").textContent = fmtScore(score);
+  document.getElementById("score-num").style.color = zc;
+  document.getElementById("score-zone").textContent = zone || "—";
+  document.getElementById("score-zone").style.color = zc;
+  document.getElementById("score-date").textContent = fmtDate(row.date);
+  const liveTag = document.getElementById("score-live-tag");
+  liveTag.classList.remove("scrubbing", "live-estimate");
+  if (displayMode === "scrub") {
+    liveTag.textContent = "Historical reading — release to return to today";
+    liveTag.classList.add("scrubbing");
+  } else if (usingLiveEstimate) {
+    const liveNames = (DISPLAY_LATEST.liveComponents || []).map(k => {
+      const c = CONFIG.components.find(cc => cc.key === k);
+      return c ? c.name : k;
+    }).join(", ");
+    liveTag.innerHTML = `<span class="live-dot"></span>Live estimate, ${DISPLAY_LATEST.liveTime} UTC — ${liveNames} updating now, rest at last close. Settles at market close.`;
+    liveTag.classList.add("live-estimate");
+  } else {
+    liveTag.textContent = `Updated ${LATEST ? new Date(LATEST.updated_at).toLocaleString("en-GB", {hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'}) : ""}`;
+  }
+
+  animateGaugeTo(score, displayMode === "scrub" ? 120 : 420);
+
+  const priceVal = row.price;
+  document.getElementById("gauge-price").innerHTML = priceVal
+    ? `${CONFIG.indexLabel} <b>${Number(priceVal).toLocaleString(undefined, {maximumFractionDigits:1})}</b>`
+    : "";
+
+  renderComponents(row);
+}
+
+/* ---- components list ---- */
+function componentSparkPath(values, w, h) {
+  const valid = values.filter(v => v !== null && !isNaN(v));
+  if (valid.length < 2) return "";
+  const min = Math.min(...valid), max = Math.max(...valid);
+  const span = (max - min) || 1;
+  const step = w / (values.length - 1);
+  let d = "";
+  values.forEach((v, i) => {
+    if (v === null || isNaN(v)) return;
+    const x = i * step;
+    const y = h - ((v - min) / span) * h;
+    d += (d === "" ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
+  });
+  return d;
+}
+
+function renderComponents(row) {
+  const list = document.getElementById("comp-list");
+  const wasExpanded = new Set(
+    Array.from(list.querySelectorAll('.comp-row[aria-expanded="true"]')).map(el => el.dataset.key)
+  );
+  list.innerHTML = "";
+
+  CONFIG.components.forEach(comp => {
+    const v = row[comp.key];
+    const inCore = v !== undefined && v !== null && !isNaN(v);
+    const z = inCore ? zoneOf(v) : null;
+    const zc = z ? `var(${z.cssvar})` : "var(--mute)";
+
+    const rowEl = document.createElement("button");
+    rowEl.className = "comp-row";
+    rowEl.type = "button";
+    rowEl.dataset.key = comp.key;
+    rowEl.setAttribute("aria-expanded", wasExpanded.has(comp.key) ? "true" : "false");
+    rowEl.setAttribute("role", "listitem");
+
+    const sparkVals = EXT_ROWS.map(r => r[comp.key] !== undefined ? parseFloat(r[comp.key]) : null);
+    const sparkPath = componentSparkPath(sparkVals.slice(-90), 100, 24);
+
+    rowEl.innerHTML = `
+      <div class="comp-row-top">
+        <span class="comp-chevron" aria-hidden="true"></span>
+        <span class="comp-name">${comp.name}</span>
+        <span class="comp-track"><span class="comp-fill" style="width:${inCore ? v : 0}%; background:${zc}"></span></span>
+        <span class="comp-readout">${inCore ? v.toFixed(0) : "—"}<span class="z" style="color:${zc}">${inCore ? z.key : "not in range"}</span></span>
+        <svg class="comp-row-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
+          <path d="${sparkPath}" fill="none" stroke="var(--mute)" stroke-width="1.1" vector-effect="non-scaling-stroke"/>
+        </svg>
+      </div>
+    `;
+    rowEl.addEventListener("click", () => {
+      const open = rowEl.getAttribute("aria-expanded") === "true";
+      rowEl.setAttribute("aria-expanded", open ? "false" : "true");
+    });
+
+    const detail = document.createElement("div");
+    detail.className = "comp-detail";
+    const bigSparkPath = componentSparkPath(sparkVals, 600, 50);
+    detail.innerHTML = `
+      <div class="comp-detail-inner">
+        <p class="comp-desc">${comp.desc}</p>
+        <svg class="comp-big-spark" viewBox="0 0 600 50" preserveAspectRatio="none" aria-hidden="true">
+          <path d="${bigSparkPath}" fill="none" stroke="${zc}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+        </svg>
+      </div>
+    `;
+
+    list.appendChild(rowEl);
+    list.appendChild(detail);
+  });
+}
+
+/* ---- timeline strip ---- */
 function renderTimeline() {
   const tl = DISPLAY_LATEST.timeline || {};
-  const items = [["Now", tl.now], ["Previous close", tl.prev_close], ["1 week ago", tl.week_ago], ["1 month ago", tl.month_ago], ["1 year ago", tl.year_ago]];
-  document.getElementById("timeline").innerHTML = items.map(([l, v]) => {
-    const z = zoneOf(v); const c = z ? cssVar(z.cssvar) : "#888";
-    return `<div class="tl-card"><small>${l}</small><b style="color:${z && (z.key === "Greed" || z.key === "Extreme Greed") ? "#0A0B0F" : c}">${fmtScore(v)}</b><span><i style="background:${c}"></i>${z ? z.key : "--"}</span></div>`;
+  const items = [
+    ["Now", tl.now], ["Previous close", tl.prev_close],
+    ["1 week ago", tl.week_ago], ["1 month ago", tl.month_ago], ["1 year ago", tl.year_ago],
+  ];
+  const el = document.getElementById("timeline");
+  el.innerHTML = items.map(([label, val]) => {
+    const z = zoneOf(val);
+    const zc = z ? `var(${z.cssvar})` : "var(--ink)";
+    return `<div class="tl-item">
+      <div class="tl-label">${label}</div>
+      <div class="tl-val tnum" style="color:${zc}">${fmtScore(val)}</div>
+      <div class="tl-zone">${z ? z.key : "—"}</div>
+    </div>`;
   }).join("");
 }
-function renderZoneRows() {
-  const blurbs = [
-    "Panic selling and heavy hedging. Historically these stretches have been short and sharp.",
-    "Investors are cautious and defensive, but not yet panicking.",
-    "Neither side has the upper hand. The market is waiting for a reason to move.",
-    "Buyers are confident and risk appetite is building.",
-    "Optimism is running hot. Stretches like this have often come before pullbacks.",
-  ];
-  document.getElementById("zone-rows").innerHTML = ZONES.map((z, i) => `
-    <div class="zrow reveal" style="--zc:var(${z.cssvar})">
-      <span class="n">0${i + 1}</span>
-      <h3><i style="background:var(${z.cssvar})"></i>${z.key} <span class="range">${ZONE_RANGE_TXT[i]}</span></h3>
-      <p>${blurbs[i]}</p>
-    </div>`).join("");
-}
-function buildStory() {
-  const el = document.getElementById("story-text");
-  const now = DISPLAY_LATEST.fgi, z = zoneOf(now), ya = (DISPLAY_LATEST.timeline || {}).year_ago, za = zoneOf(ya);
-  const hlc = zz => (zz.key === "Greed" || zz.key === "Extreme Greed") ? "#7DA51A" : cssVar(zz.cssvar);
-  const parts = [["Right",0],["now,",0],["Indian",0],["investors",0],["are",0],[z ? z.hand + "." : "",z],["The",0],["dial",0],["reads",0],[fmtScore(now) + ",",z]];
-  if (ya != null && !isNaN(ya)) parts.push(["against",0],[fmtScore(ya),za],["a",0],["year",0],["ago.",0]);
-  el.innerHTML = parts.map(([w, zz]) => zz ? `<span class="w hl" style="--hlc:${hlc(zz)}">${w}</span>` : `<span class="w">${w}</span>`).join(" ");
+
+/* ============================================================
+   CHARTS
+   ============================================================ */
+const RANGES = [
+  { label: "1M", days: 21 }, { label: "6M", days: 126 }, { label: "1Y", days: 252 },
+  { label: "5Y", days: 1260 }, { label: "MAX", days: null },
+];
+
+function sliceByRange(rows, days) {
+  if (days === null) return rows;
+  return rows.slice(-days);
 }
 
-/* ============ charts ============ */
-const RANGES = [{ label: "1M", days: 21 }, { label: "6M", days: 126 }, { label: "1Y", days: 252 }, { label: "MAX", days: null }];
-const AXIS = "#8A92A6", GRID = "rgba(138,146,166,0.12)";
-function slice(rows, d) { return d === null ? rows : rows.slice(-d); }
 function buildCharts() {
-  const bands = { id: "bands", beforeDraw(c) { const { ctx, chartArea: a, scales } = c; if (!a) return; ctx.save(); ZONES.forEach(z => { const t = scales.y.getPixelForValue(z.hi), b = scales.y.getPixelForValue(z.lo); ctx.fillStyle = `rgba(${z.rgb},0.06)`; ctx.fillRect(a.left, t, a.right - a.left, b - t); }); ctx.restore(); } };
-  const line = { id: "scrubLine", afterDraw(c) { const x = window.__scrubX; if (x == null) return; const { ctx, chartArea: a } = c; if (x < a.left || x > a.right) return; ctx.save(); ctx.strokeStyle = "#C6FF3D"; ctx.lineWidth = 1; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(x, a.top); ctx.lineTo(x, a.bottom); ctx.stroke(); ctx.restore(); } };
-  const draw = reduced() ? {} : {
-    x: { type: "number", easing: "easeOutQuad", duration: 30, from: NaN, delay(c) { if (c.type !== "data" || c.xStarted) return 0; c.xStarted = true; return c.index * 5; } },
-    y: { type: "number", easing: "easeOutQuad", duration: 30, from: c => c.chart.scales.y.getPixelForValue(50), delay(c) { if (c.type !== "data" || c.yStarted) return 0; c.yStarted = true; return c.index * 5; } },
+  const dark = isDark();
+  const axisColor = dark ? "#8c8574" : "#837c6d";
+  const gridColor = dark ? "rgba(236,231,220,0.08)" : "rgba(23,20,15,0.07)";
+
+  const zoneRGB = ZONE_RGB;
+
+  const zoneBandsPlugin = {
+    id: "zoneBands",
+    beforeDraw(chart) {
+      const { ctx, chartArea, scales } = chart;
+      if (!chartArea) return;
+      ctx.save();
+      ZONES.forEach(z => {
+        const yTop = scales.y.getPixelForValue(z.hi);
+        const yBot = scales.y.getPixelForValue(z.lo);
+        ctx.fillStyle = `rgba(${zoneRGB[z.key]},0.06)`;
+        ctx.fillRect(chartArea.left, yTop, chartArea.right - chartArea.left, yBot - yTop);
+      });
+      ctx.restore();
+    }
   };
-  const base = (extra) => ({
-    responsive: true, maintainAspectRatio: false, animation: { duration: reduced() ? 0 : 380 },
-    interaction: { mode: "index", intersect: false },
-    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-    events: ["mousemove", "mouseout", "touchstart", "touchmove"], ...extra,
-  });
-  const xScale = { type: "time", time: { unit: "month" }, ticks: { color: AXIS, font: { family: "JetBrains Mono", size: 10 }, maxRotation: 0 }, grid: { display: false }, border: { color: GRID } };
+
+  const scrubLinePlugin = {
+    id: "scrubLine",
+    afterDraw(chart) {
+      if (window.__scrubPixelX === null || window.__scrubPixelX === undefined) return;
+      const { ctx, chartArea } = chart;
+      const x = window.__scrubPixelX;
+      if (x < chartArea.left || x > chartArea.right) return;
+      ctx.save();
+      ctx.strokeStyle = axisColor;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(x, chartArea.top);
+      ctx.lineTo(x, chartArea.bottom);
+      ctx.stroke();
+      ctx.restore();
+    }
+  };
+
   fgiChart = new Chart(document.getElementById("chart-fgi"), {
     type: "line",
-    data: { labels: [], datasets: [{ data: [], borderWidth: 2, pointRadius: 0, tension: 0,
-      segment: { borderColor: c => { const z = zoneOf(c.p1.parsed.y); return z ? `rgb(${z.rgb})` : AXIS; } } }] },
-    options: base({ animations: draw, scales: { x: xScale, y: { min: 0, max: 100, ticks: { color: AXIS, font: { family: "JetBrains Mono", size: 10 }, stepSize: 25 }, grid: { color: GRID }, border: { display: false } } } }),
-    plugins: [bands, line],
+    data: { labels: [], datasets: [
+      {
+        label: "Composite", data: [], borderWidth: 1.3, pointRadius: 0, tension: 0,
+        segment: { borderColor: (ctx) => {
+          const v = ctx.p1.parsed.y; const z = zoneOf(v);
+          return z ? `rgb(${zoneRGB[z.key]})` : axisColor;
+        }}
+      }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: prefersReducedMotion() ? 0 : 380 },
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        x: { type: "time", time: { unit: "month" }, ticks: { color: axisColor, font: { size: 10 }, maxRotation: 0 }, grid: { display: false }, border: { color: gridColor } },
+        y: { min: 0, max: 100, ticks: { color: axisColor, font: { size: 10 }, stepSize: 25 }, grid: { color: gridColor }, border: { display: false } },
+      },
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      events: ["mousemove", "mouseout", "touchstart", "touchmove"],
+    },
+    plugins: [zoneBandsPlugin, scrubLinePlugin],
   });
+
   priceChart = new Chart(document.getElementById("chart-price"), {
     type: "line",
-    data: { labels: [], datasets: [{ data: [], borderColor: "#2F5BFF", backgroundColor: "rgba(47,91,255,0.16)", fill: true, borderWidth: 2, pointRadius: 0, tension: 0.05 }] },
-    options: base({ scales: { x: xScale, y: { ticks: { color: AXIS, font: { family: "JetBrains Mono", size: 10 } }, grid: { color: GRID }, border: { display: false } } } }),
-    plugins: [line],
+    data: { labels: [], datasets: [
+      { label: CONFIG.indexLabel, data: [], borderColor: dark ? "#c4bcac" : "#4a453c", borderWidth: 1.2, pointRadius: 0, tension: 0.05 }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: prefersReducedMotion() ? 0 : 380 },
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        x: { type: "time", time: { unit: "month" }, ticks: { color: axisColor, font: { size: 10 }, maxRotation: 0 }, grid: { display: false }, border: { color: gridColor } },
+        y: { ticks: { color: axisColor, font: { size: 10 } }, grid: { color: gridColor }, border: { display: false } },
+      },
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      events: ["mousemove", "mouseout", "touchstart", "touchmove"],
+    },
+    plugins: [scrubLinePlugin],
   });
 }
-function updateRange(days) {
-  rangeDays = days;
-  const s = slice(ROWS, days);
-  fgiChart.data.labels = s.map(r => r.date);
-  fgiChart.data.datasets[0].data = s.map(r => r.composite);
-  fgiChart.update();
-  const first = s[0] ? s[0].date : "";
-  const ps = PRICES.filter(r => r.date >= first);
-  const b = ps.find(r => !isNaN(r.price));
-  priceChart.data.labels = ps.map(r => r.date);
-  priceChart.data.datasets[0].data = ps.map(r => isNaN(r.price) || !b ? null : r.price / b.price * 100);
-  priceChart.update();
-  const rg = document.getElementById("scrub-range"); rg.max = Math.max(0, s.length - 1); rg.value = rg.max;
-  document.querySelectorAll(".range-btn").forEach(btn => btn.setAttribute("aria-pressed", btn.dataset.days === String(days) ? "true" : "false"));
-}
-function buildToolbar() {
-  const tb = document.getElementById("range-toolbar");
-  tb.innerHTML = RANGES.map(r => `<button class="range-btn" type="button" data-days="${r.days === null ? "null" : r.days}" aria-pressed="${r.days === null}">${r.label}</button>`).join("");
-  tb.querySelectorAll(".range-btn").forEach(b => b.addEventListener("click", () => { historyShown = true; updateRange(b.dataset.days === "null" ? null : +b.dataset.days); }));
-}
+
 let intradayChart = null;
 function renderIntraday() {
-  const sec = document.getElementById("intraday-section");
-  if (!INTRADAY.length) { sec.style.display = "none"; return; }
-  sec.style.display = "";
-  const last = INTRADAY[INTRADAY.length - 1];
-  document.getElementById("intraday-note").textContent = `Last update ${last.time} UTC`;
+  const section = document.getElementById("intraday-section");
+  const points = INTRADAY_ROWS;
+  if (!Array.isArray(points) || points.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+
+  const dark = isDark();
+  const axisColor = dark ? "#8c8574" : "#837c6d";
+  const gridColor = dark ? "rgba(236,231,220,0.08)" : "rgba(23,20,15,0.07)";
+
+  const last = points[points.length - 1];
+  const liveNames = (last.live_components || []).map(k => {
+    const c = CONFIG.components.find(cc => cc.key === k);
+    return c ? c.name : k;
+  }).join(", ");
+  const frozenDates = last.frozen_as_of || {};
+  const frozenStr = Object.entries(frozenDates).map(([src, d]) => `${src} ${fmtDate(d)}`).join(", ");
+  document.getElementById("intraday-note").textContent =
+    `Live: ${liveNames}. Everything else held at last close (${frozenStr}). Last update ${last.time} UTC.`;
+
+  section.style.display = "";
+
+  const labels = points.map(p => p.time);
+  const scores = points.map(p => p.composite);
+
+  if (intradayChart) intradayChart.destroy();
   intradayChart = new Chart(document.getElementById("chart-intraday"), {
     type: "line",
-    data: { labels: INTRADAY.map(p => p.time), datasets: [{ data: INTRADAY.map(p => p.composite), borderWidth: 2, pointRadius: 3, pointBackgroundColor: "#C6FF3D", tension: 0.15,
-      segment: { borderColor: c => { const z = zoneOf(c.p1.parsed.y); return z ? `rgb(${z.rgb})` : AXIS; } } }] },
-    options: { responsive: true, maintainAspectRatio: false, animation: { duration: reduced() ? 0 : 380 },
-      scales: { x: { ticks: { color: AXIS, font: { family: "JetBrains Mono", size: 10 }, maxRotation: 0 }, grid: { display: false }, border: { color: GRID } },
-                y: { min: 0, max: 100, ticks: { color: AXIS, font: { family: "JetBrains Mono", size: 10 }, stepSize: 25 }, grid: { color: GRID }, border: { display: false } } },
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.parsed.y.toFixed(0)} · ${zoneOf(c.parsed.y)?.key ?? ""}` } } } },
+    data: { labels, datasets: [
+      {
+        label: "Live estimate", data: scores, borderWidth: 1.6, pointRadius: 2.5,
+        pointBackgroundColor: axisColor, tension: 0.15,
+        segment: { borderColor: (ctx) => {
+          const v = ctx.p1.parsed.y; const z = zoneOf(v);
+          return z ? `rgb(${ZONE_RGB[z.key]})` : axisColor;
+        }}
+      }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: prefersReducedMotion() ? 0 : 380 },
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        x: { ticks: { color: axisColor, font: { size: 10 }, maxRotation: 0 }, grid: { display: false }, border: { color: gridColor } },
+        y: { min: 0, max: 100, ticks: { color: axisColor, font: { size: 10 }, stepSize: 25 }, grid: { color: gridColor }, border: { display: false } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y.toFixed(0)} · ${zoneOf(ctx.parsed.y)?.key ?? ""}`,
+          },
+        },
+      },
+    },
   });
 }
 
-/* ============ scrub ============ */
-function curSlice() { return historyShown ? slice(ROWS, rangeDays) : []; }
-function liveRow() { return { date: DISPLAY_LATEST.date, composite: DISPLAY_LATEST.fgi, zone: DISPLAY_LATEST.zone, price: DISPLAY_LATEST[CONFIG.priceKey] }; }
-function rowAt(i) {
-  const r = curSlice()[i]; if (!r) return null;
-  if (r.date === DISPLAY_LATEST.date) return liveRow();
-  const p = PRICES.find(x => x.date === r.date);
-  return { date: r.date, composite: r.composite, zone: r.zone, price: p ? p.price : null };
-}
-function enterScrub(i) { const row = rowAt(i); if (!row) return; mode = "scrub"; renderReading(row); document.getElementById("scrub-range").value = i; }
-function exitScrub() { mode = "live"; window.__scrubX = null; renderReading(liveRow()); }
-function nearest(px) {
-  const s = curSlice(); if (!s.length) return null;
-  const sc = fgiChart.scales.x; let best = 0, bd = Infinity;
-  for (let i = 0; i < s.length; i++) { const d = Math.abs(sc.getPixelForValue(new Date(s[i].date + "T00:00:00").getTime()) - px); if (d < bd) { bd = d; best = i; } }
-  return best;
-}
-function wireScrub() {
-  const wrap = document.getElementById("chart-fgi-wrap"), tip = document.getElementById("tip");
-  function move(cx) {
-    const x = cx - wrap.getBoundingClientRect().left; const i = nearest(x); if (i === null) return;
-    const r = curSlice()[i];
-    window.__scrubX = fgiChart.scales.x.getPixelForValue(new Date(r.date + "T00:00:00").getTime());
-    fgiChart.draw(); priceChart.draw(); enterScrub(i);
-    tip.innerHTML = `<div class="d">${fmtDate(r.date)}</div><b>${fmtScore(r.composite)}</b> · ${r.zone}`;
-    tip.style.left = x + "px"; tip.style.top = "0px"; tip.classList.add("show");
+function updateChartsForRange(days) {
+  currentRangeDays = days;
+  const coreSlice = sliceByRange(DISPLAY_ROWS, days);
+  const dates = coreSlice.map(r => r.date);
+  const scores = coreSlice.map(r => r.composite);
+  // Today's point should match the headline reading (which may itself be
+  // a live intraday estimate, not the settled close — see
+  // computeDisplayLatest), not CORE's own composite.
+  if (DISPLAY_LATEST && dates.length && dates[dates.length - 1] === DISPLAY_LATEST.date) {
+    scores[scores.length - 1] = DISPLAY_LATEST.fgi;
   }
-  function leave() { tip.classList.remove("show"); window.__scrubX = null; fgiChart.draw(); priceChart.draw(); exitScrub(); }
-  wrap.addEventListener("mousemove", e => move(e.clientX));
-  wrap.addEventListener("mouseleave", leave);
-  wrap.addEventListener("touchmove", e => move(e.touches[0].clientX), { passive: true });
-  wrap.addEventListener("touchend", leave);
-  const rg = document.getElementById("scrub-range");
-  rg.addEventListener("input", () => {
-    const i = +rg.value; const r = curSlice()[i]; if (!r) return;
-    enterScrub(i); window.__scrubX = fgiChart.scales.x.getPixelForValue(new Date(r.date + "T00:00:00").getTime()); fgiChart.draw(); priceChart.draw();
-  });
-  rg.addEventListener("blur", leave);
-}
+  fgiChart.data.labels = dates;
+  fgiChart.data.datasets[0].data = scores;
+  fgiChart.update();
 
-/* ============ scroll motion ============ */
-function setupReveals() {
-  [[".tl-card", 90], [".zrow", 80]].forEach(([sel, step]) => document.querySelectorAll(sel).forEach((el, i) => { el.classList.add("reveal"); el.style.setProperty("--d", i * step + "ms"); }));
-  const els = document.querySelectorAll(".reveal");
-  if (reduced() || !("IntersectionObserver" in window)) { els.forEach(e => e.classList.add("in")); return; }
-  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-  els.forEach(e => io.observe(e));
-  const hio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !historyShown) { historyShown = true; setTimeout(() => updateRange(null), 250); hio.disconnect(); } }), { threshold: 0.25 });
-  hio.observe(document.getElementById("chart-fgi-wrap"));
-}
-let ticking = false;
-function frame() {
-  ticking = false;
-  const vh = innerHeight, y = scrollY, H = document.documentElement.scrollHeight - vh;
-  document.getElementById("progress").style.setProperty("--pg", H > 0 ? y / H : 0);
-  if (reduced()) return;
-  const hero = document.querySelector(".hero .wrap");
-  const p0 = clamp01(y / (vh * 0.8));
-  hero.style.transform = `translate3d(0, ${-p0 * 70}px, 0) scale(${1 - p0 * 0.05})`;
-  hero.style.opacity = 1 - p0 * 0.9;
-  if (innerWidth > 900) {
-    const st = document.getElementById("story"), r = st.getBoundingClientRect();
-    const sp = clamp01((-r.top + vh * 0.15) / (r.height - vh * 0.9));
-    const ws = st.querySelectorAll(".w"), lit = Math.round(sp * ws.length * 1.1);
-    ws.forEach((w, i) => w.classList.toggle("lit", i < lit));
-    document.getElementById("story-note").classList.toggle("on", sp > 0.92);
-  }
-  document.querySelectorAll("[data-zoom]").forEach(c => {
-    const r = c.getBoundingClientRect(); const e = easeOutCubic(clamp01((vh - r.top) / (vh * 0.7)));
-    c.style.transform = `translate3d(0, ${(1 - e) * 70}px, 0) scale(${0.9 + 0.1 * e})`;
-    c.style.borderRadius = `${22 + (1 - e) * 26}px`;
+  const firstDate = dates[0];
+  const priceSlice = PRICE_ROWS.filter(r => r.date >= firstDate);
+  const base = priceSlice.find(r => !isNaN(r.price));
+  const rebased = priceSlice.map(r => (isNaN(r.price) ? null : (r.price / base.price) * 100));
+  priceChart.data.labels = priceSlice.map(r => r.date);
+  priceChart.data.datasets[0].data = rebased;
+  priceChart.update();
+
+  document.getElementById("scrub-range").max = coreSlice.length - 1;
+  document.getElementById("scrub-range").value = coreSlice.length - 1;
+
+  document.querySelectorAll(".range-btn").forEach(btn => {
+    btn.setAttribute("aria-pressed", Number(btn.dataset.days || 0) === (days || 0) && (days === null) === (btn.dataset.days === "null") ? "true" : "false");
   });
 }
-function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
 
-
-/* ===== extra motion ===== */
-function splitWords(el) {
-  let i = 0;
-  const walk = node => {
-    Array.from(node.childNodes).forEach(n => {
-      if (n.nodeType === 3) {
-        const frag = document.createDocumentFragment();
-        n.textContent.split(/(\s+)/).forEach(t => {
-          if (!t) return;
-          if (/^\s+$/.test(t)) { frag.appendChild(document.createTextNode(t)); return; }
-          const w = document.createElement("span"); w.className = "word";
-          const inner = document.createElement("span"); inner.textContent = t; inner.style.setProperty("--i", i++);
-          w.appendChild(inner); frag.appendChild(w);
-        });
-        n.replaceWith(frag);
-      } else if (n.nodeType === 1) walk(n);
+function buildRangeToolbar() {
+  const toolbar = document.getElementById("range-toolbar");
+  toolbar.innerHTML = RANGES.map(r =>
+    `<button class="range-btn" type="button" data-days="${r.days === null ? "null" : r.days}" aria-pressed="${r.days === null ? "true" : "false"}">${r.label}</button>`
+  ).join("");
+  toolbar.querySelectorAll(".range-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      toolbar.querySelectorAll(".range-btn").forEach(b => b.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+      const d = btn.dataset.days === "null" ? null : Number(btn.dataset.days);
+      updateChartsForRange(d);
     });
+  });
+}
+
+/* ---- scrub interaction ---- */
+function coreSliceForCurrentRange() { return sliceByRange(DISPLAY_ROWS, currentRangeDays); }
+
+function rowFromCoreIndex(idx) {
+  const slice = coreSliceForCurrentRange();
+  const r = slice[idx];
+  if (!r) return null;
+  // Scrubbing to today should show exactly what the hero shows (which may
+  // itself be a live intraday estimate — see computeDisplayLatest), not a
+  // second, silently different number for the same date.
+  if (DISPLAY_LATEST && r.date === DISPLAY_LATEST.date) return liveRow();
+  const priceRow = PRICE_ROWS.find(p => p.date === r.date);
+  // CORE never carries Put/Call, but EXTENDED does (from mid-2025 onward) —
+  // merge it in by date so scrubbing shows the real value wherever it
+  // actually exists, instead of always reading "not in range".
+  const extRow = EXT_BY_DATE.get(r.date);
+  return {
+    date: r.date, composite: r.composite, zone: r.zone,
+    momentum: r.momentum, volatility: r.volatility, strength: r.strength,
+    breadth: r.breadth, safe_haven: r.safe_haven,
+    put_call: extRow ? extRow.put_call : undefined,
+    price: priceRow ? priceRow.price : null,
   };
-  walk(el);
-}
-function setupExtraMotion() {
-  document.querySelectorAll("[data-split]").forEach(splitWords);
-  if (reduced()) { document.querySelectorAll(".sec-title").forEach(t => t.classList.add("in")); return; }
-  const tio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); tio.unobserve(e.target); } }), { threshold: 0.4 });
-  document.querySelectorAll(".sec-title").forEach(t => tio.observe(t));
-  // spotlight + tilt on dark cards
-  document.querySelectorAll(".dark-card").forEach(c => {
-    c.addEventListener("pointermove", e => {
-      const r = c.getBoundingClientRect();
-      c.style.setProperty("--mx", (e.clientX - r.left) + "px"); c.style.setProperty("--my", (e.clientY - r.top) + "px");
-    });
-  });
-  const card = document.getElementById("reading-card"), inner = document.getElementById("reading-inner");
-  card.addEventListener("pointermove", e => {
-    const r = card.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-    inner.style.transform = `perspective(1200px) rotateY(${x * 5}deg) rotateX(${-y * 5}deg)`;
-  });
-  card.addEventListener("pointerleave", () => { inner.style.transform = ""; });
-  // magnetic buttons
-  document.querySelectorAll(".btn").forEach(b => {
-    b.addEventListener("pointermove", e => { const r = b.getBoundingClientRect(); b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .18}px, ${(e.clientY - r.top - r.height / 2) * .3}px)`; });
-    b.addEventListener("pointerleave", () => { b.style.transform = ""; });
-  });
-}
-function setupCountUps() {
-  if (reduced()) return;
-  const cio = new IntersectionObserver(es => es.forEach(e => {
-    if (!e.isIntersecting) return; cio.unobserve(e.target);
-    const b = e.target.querySelector("b"), to = parseFloat(b.textContent); if (isNaN(to)) return;
-    const d = parseFloat(getComputedStyle(e.target).getPropertyValue("--d")) || 0, t0 = performance.now() + d;
-    b.textContent = "0";
-    (function step(now) { const t = clamp01((now - t0) / 1100); b.textContent = (to * easeOutCubic(t)).toFixed(0); if (t < 1) requestAnimationFrame(step); })(performance.now());
-  }), { threshold: 0.5 });
-  document.querySelectorAll(".tl-card").forEach(c => cio.observe(c));
-}
-function buildTicker() {
-  const tl = DISPLAY_LATEST.timeline || {};
-  const items = [["Today", tl.now], ["Previous close", tl.prev_close], ["1 week ago", tl.week_ago], ["1 month ago", tl.month_ago], ["1 year ago", tl.year_ago]];
-  const one = items.map(([l, v]) => { const z = zoneOf(v); return `<span class="ticker-item">${l} <b>${fmtScore(v)}</b><i style="background:${z ? cssVar(z.cssvar) : "#ccc"}"></i>${z ? z.key : ""}</span><span class="ticker-item ticker-sep">/</span>`; }).join("")
-    + `<span class="ticker-item">NIFTY 50 <b>${fmtPrice(DISPLAY_LATEST[CONFIG.priceKey])}</b></span><span class="ticker-item ticker-sep">/</span>`;
-  document.getElementById("ticker").innerHTML = one + one + one + one;
 }
 
-/* ============ boot ============ */
+// Decides what "now" actually means: the official settled close (LATEST),
+// or — during market hours — a more recent hourly live estimate from
+// intraday.json. Only ever moves DISPLAY_LATEST forward in time; a live
+// estimate is used only if it's strictly newer than the official reading,
+// so this can never show something staler than the settled number.
 function computeDisplayLatest() {
-  usingLive = false; DISPLAY_LATEST = LATEST;
-  if (!INTRADAY.length || !LATEST) return;
-  const last = INTRADAY[INTRADAY.length - 1];
+  usingLiveEstimate = false;
+  DISPLAY_LATEST = LATEST;
+  if (!INTRADAY_ROWS.length || !LATEST) return;
+  const last = INTRADAY_ROWS[INTRADAY_ROWS.length - 1];
   if (new Date(last.timestamp) > new Date(LATEST.updated_at)) {
-    usingLive = true;
-    DISPLAY_LATEST = { date: last.timestamp.slice(0, 10), fgi: last.composite, zone: last.zone, [CONFIG.priceKey]: last[CONFIG.priceKey],
-      timeline: { ...(LATEST.timeline || {}), now: last.composite }, updated_at: last.timestamp, liveTime: last.time };
+    usingLiveEstimate = true;
+    DISPLAY_LATEST = {
+      date: last.timestamp.slice(0, 10),
+      fgi: last.composite,
+      zone: last.zone,
+      [CONFIG.priceKey]: last[CONFIG.priceKey],
+      components: last.components,
+      timeline: { ...(LATEST.timeline || {}), now: last.composite },
+      n_components: Object.keys(last.components || {}).length,
+      updated_at: last.timestamp,
+      liveTime: last.time,
+      liveComponents: last.live_components || [],
+    };
   }
 }
+
+function liveRow() {
+  return {
+    date: DISPLAY_LATEST.date, composite: DISPLAY_LATEST.fgi, zone: DISPLAY_LATEST.zone,
+    ...DISPLAY_LATEST.components,
+    price: DISPLAY_LATEST[CONFIG.priceKey],
+  };
+}
+
+function enterScrub(idx) {
+  displayMode = "scrub"; scrubIndex = idx;
+  const row = rowFromCoreIndex(idx);
+  if (!row) return;
+  renderHeroFromRow(row, "scrub");
+  document.getElementById("scrub-range").value = idx;
+}
+function exitScrub() {
+  displayMode = "live"; scrubIndex = null;
+  window.__scrubPixelX = null;
+  renderHeroFromRow(liveRow(), "live");
+}
+
+function nearestIndexForPixel(chart, pixelX) {
+  const scale = chart.scales.x;
+  const slice = coreSliceForCurrentRange();
+  if (!slice.length) return null;
+  let closest = 0, closestDist = Infinity;
+  for (let i = 0; i < slice.length; i++) {
+    const px = scale.getPixelForValue(new Date(slice[i].date + "T00:00:00").getTime());
+    const dist = Math.abs(px - pixelX);
+    if (dist < closestDist) { closestDist = dist; closest = i; }
+  }
+  return closest;
+}
+
+function wireScrubEvents() {
+  const wrap = document.getElementById("chart-fgi-wrap");
+  const tip = document.getElementById("crosshair-tip");
+
+  function handleMove(clientX) {
+    const rect = wrap.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const idx = nearestIndexForPixel(fgiChart, x);
+    if (idx === null) return;
+    window.__scrubPixelX = fgiChart.scales.x.getPixelForValue(
+      new Date(coreSliceForCurrentRange()[idx].date + "T00:00:00").getTime()
+    );
+    fgiChart.draw(); priceChart.draw();
+    enterScrub(idx);
+
+    const row = coreSliceForCurrentRange()[idx];
+    tip.innerHTML = `<div class="ct-date">${fmtDate(row.date)}</div><b>${fmtScore(row.composite)}</b> · ${row.zone}`;
+    tip.style.left = (x) + "px";
+    tip.style.top = "0px";
+    tip.classList.add("show");
+  }
+
+  wrap.addEventListener("mousemove", (e) => handleMove(e.clientX));
+  wrap.addEventListener("mouseleave", () => {
+    tip.classList.remove("show");
+    window.__scrubPixelX = null;
+    fgiChart.draw(); priceChart.draw();
+    exitScrub();
+  });
+  wrap.addEventListener("touchmove", (e) => { handleMove(e.touches[0].clientX); }, { passive: true });
+  wrap.addEventListener("touchend", () => {
+    tip.classList.remove("show");
+    window.__scrubPixelX = null;
+    fgiChart.draw(); priceChart.draw();
+    exitScrub();
+  });
+
+  const rangeInput = document.getElementById("scrub-range");
+  rangeInput.addEventListener("input", () => {
+    const idx = Number(rangeInput.value);
+    enterScrub(idx);
+    const slice = coreSliceForCurrentRange();
+    window.__scrubPixelX = fgiChart.scales.x.getPixelForValue(new Date(slice[idx].date + "T00:00:00").getTime());
+    fgiChart.draw(); priceChart.draw();
+  });
+  rangeInput.addEventListener("blur", () => {
+    window.__scrubPixelX = null; fgiChart.draw(); priceChart.draw(); exitScrub();
+  });
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
 async function boot() {
-  const [lr, cr, pr, ir] = await Promise.all([
-    fetch(CONFIG.latestUrl), fetch(CONFIG.coreUrl), fetch(CONFIG.priceUrl),
+  CONFIG.__sansStack = getComputedStyle(document.body).fontFamily;
+
+  const [latestRes, coreRes, extRes, priceRes, intradayRes] = await Promise.all([
+    fetch(CONFIG.latestUrl), fetch(CONFIG.coreUrl), fetch(CONFIG.extendedUrl), fetch(CONFIG.priceUrl),
     fetch("data/intraday.json?t=" + Date.now()).catch(() => null),
   ]);
-  LATEST = await lr.json();
-  const coreText = await cr.text(), priceText = await pr.text();
-  if (ir && ir.ok) { try { INTRADAY = await ir.json(); } catch { INTRADAY = []; } }
-  if (!Array.isArray(INTRADAY)) INTRADAY = [];
+  LATEST = await latestRes.json();
+  const coreText = await coreRes.text();
+  const extText = await extRes.text();
+  const priceText = await priceRes.text();
+  if (intradayRes && intradayRes.ok) {
+    try { INTRADAY_ROWS = await intradayRes.json(); } catch { INTRADAY_ROWS = []; }
+  }
+  if (!Array.isArray(INTRADAY_ROWS)) INTRADAY_ROWS = [];
   computeDisplayLatest();
-  CORE = parseCSV(coreText).map(r => ({ date: r.Date, composite: parseFloat(r.composite), zone: r.zone })).filter(r => r.date && !isNaN(r.composite));
-  ROWS = CORE.slice();
-  const today = { date: DISPLAY_LATEST.date, composite: DISPLAY_LATEST.fgi, zone: DISPLAY_LATEST.zone };
-  if (ROWS.length && ROWS[ROWS.length - 1].date === today.date) ROWS[ROWS.length - 1] = today; else ROWS.push(today);
-  PRICES = priceText.trim().split("\n").slice(1).map(l => { const [d, p] = l.split(","); return { date: d, price: parseFloat(p) }; });
 
-  document.getElementById("chip-text").textContent = usingLive ? "Live · " + DISPLAY_LATEST.liveTime + " UTC" : "Close · " + fmtDate(LATEST.date);
-  buildDial(); setDial(0); buildPills(); renderTimeline(); renderZoneRows(); buildStory();
-  buildToolbar(); buildCharts(); wireScrub(); renderIntraday();
-  setTimeout(() => { exitScrub(); const h = document.getElementById("dial-halo"); if (h && !reduced()) { h.style.transformBox = "fill-box"; h.style.transformOrigin = "center"; h.animate([{ opacity: .6, transform: "scale(1)" }, { opacity: 0, transform: "scale(3.2)" }], { duration: 1800, iterations: Infinity, delay: 1600 }); } }, reduced() ? 0 : 900);
-  buildTicker(); setupCountUps();
-  setupReveals();
-  addEventListener("scroll", onScroll, { passive: true }); addEventListener("resize", onScroll); frame();
+  CORE_ROWS = parseCSV(coreText).map(r => ({
+    date: r.Date, composite: parseFloat(r.composite), zone: r.zone,
+    momentum: parseFloat(r.momentum), volatility: parseFloat(r.volatility),
+    strength: parseFloat(r.strength), breadth: parseFloat(r.breadth), safe_haven: parseFloat(r.safe_haven),
+  })).filter(r => r.date && !isNaN(r.composite));
+
+  // Build DISPLAY_ROWS: CORE_ROWS with today's entry made to match
+  // DISPLAY_LATEST — overwritten if the daily build already produced a row
+  // for today, appended if it hasn't (e.g. mid-session, before today's
+  // official close has been computed). Everything that plots or scrubs the
+  // history — the chart and rowFromCoreIndex — reads this, not CORE_ROWS
+  // directly, so today's point is never stale or silently different from
+  // the hero.
+  DISPLAY_ROWS = CORE_ROWS.slice();
+  if (DISPLAY_LATEST) {
+    const todayRow = {
+      date: DISPLAY_LATEST.date, composite: DISPLAY_LATEST.fgi, zone: DISPLAY_LATEST.zone,
+      ...DISPLAY_LATEST.components,
+    };
+    const lastDate = DISPLAY_ROWS.length ? DISPLAY_ROWS[DISPLAY_ROWS.length - 1].date : null;
+    if (lastDate === DISPLAY_LATEST.date) {
+      DISPLAY_ROWS[DISPLAY_ROWS.length - 1] = { ...DISPLAY_ROWS[DISPLAY_ROWS.length - 1], ...todayRow };
+    } else {
+      DISPLAY_ROWS.push(todayRow);
+    }
+  }
+
+  EXT_ROWS = parseCSV(extText).map(r => {
+    const row = { date: r.Date };
+    CONFIG.components.forEach(c => { if (r[c.key] !== undefined) row[c.key] = parseFloat(r[c.key]); });
+    return row;
+  }).filter(r => r.date);
+  EXT_BY_DATE = new Map(EXT_ROWS.map(r => [r.date, r]));
+
+  const priceLines = priceText.trim().split("\n").slice(1);
+  PRICE_ROWS = priceLines.map(l => { const [d, p] = l.split(","); return { date: d, price: parseFloat(p) }; });
+
+  document.getElementById("mh-history").textContent = LATEST.history_days ?? CORE_ROWS.length;
+  document.getElementById("mh-components").textContent = LATEST.n_components ?? CONFIG.components.length;
+  document.getElementById("mh-updated").textContent = usingLiveEstimate
+    ? "live estimate, " + DISPLAY_LATEST.liveTime + " UTC"
+    : "as of " + fmtDate(LATEST.date);
+
+  document.getElementById("gauge-mount").innerHTML = buildGaugeSVG();
+  initGaugeStatic();
+
+  renderTimeline();
+  buildRangeToolbar();
+  buildCharts();
+  updateChartsForRange(null);
+  wireScrubEvents();
+  renderIntraday();
+
+  exitScrub();
 }
-setupExtraMotion();
+
 boot().catch(err => {
-  document.getElementById("r-head").textContent = "Couldn't load today's reading.";
-  document.getElementById("r-desc").textContent = "The data files may still be generating. Try again shortly. (" + err.message + ")";
+  document.querySelector(".hero-text").innerHTML =
+    `<p class="dek">Couldn't load today's reading (${err.message}). The data files may still be generating — try again shortly.</p>`;
   console.error(err);
 });
 </script>
