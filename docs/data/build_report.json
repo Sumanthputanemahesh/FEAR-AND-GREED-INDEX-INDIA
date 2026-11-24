@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T07:40:22.756593",
+  "generated_at": "2026-11-24T22:38:51.212215",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -26,7 +26,7 @@
       "missing": [],
       "breadth_rows": 7750,
       "strength_rows": 7695,
-      "breadth_latest": 4.334842713932557,
+      "breadth_latest": 2.1530245321143737,
       "strength_latest": 1.0
     },
     "safe_haven": {
@@ -45,12 +45,12 @@
           "USED": true
         },
         "GILT5YBEES.NS": {
-          "rows": 1383,
+          "rows": 1384,
           "from": "2021-04-07",
           "USED": false
         },
         "EBBETF0433.NS": {
-          "rows": 422,
+          "rows": 423,
           "from": "2025-03-03",
           "USED": false
         }
@@ -92,7 +92,7 @@
           "2025-06-11",
           "2026-11-23"
         ],
-        "latest": 70.25,
+        "latest": 68.86,
         "zone": "Greed"
       },
       "extended": {
@@ -109,7 +109,7 @@
           "2025-06-11",
           "2026-11-23"
         ],
-        "latest": 70.25,
+        "latest": 68.86,
         "zone": "Greed"
       }
     },
@@ -130,13 +130,13 @@
       ],
       "n_days": 358,
       "latest_date": "2026-11-23",
-      "latest_score": 70.25,
+      "latest_score": 68.86,
       "latest_zone": "Greed",
       "latest_components": {
         "momentum": 97.61,
         "volatility": 18.73,
         "strength": 54.98,
-        "breadth": 72.51,
+        "breadth": 64.14,
         "safe_haven": 97.21,
         "put_call": 80.48
       },

@@ -1,6 +1,6 @@
 {
   "date": "2026-11-23",
-  "fgi": 70.25,
+  "fgi": 68.86,
   "zone": "Greed",
   "source": "extended",
   "n_components": 6,
@@ -9,18 +9,18 @@
     "momentum": 97.6,
     "volatility": 18.7,
     "strength": 55.0,
-    "breadth": 72.5,
+    "breadth": 64.1,
     "safe_haven": 97.2,
     "put_call": 80.5
   },
   "timeline": {
-    "now": 70.25,
+    "now": 68.86,
     "prev_close": 61.35,
     "week_ago": 66.14,
     "month_ago": 28.55,
     "year_ago": 51.53
   },
-  "updated_at": "2026-11-24T07:40:53+00:00",
+  "updated_at": "2026-11-24T22:39:23+00:00",
   "history_days": 358,
   "core_history_days": 358
 }
