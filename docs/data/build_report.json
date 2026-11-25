@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T22:38:51.212215",
+  "generated_at": "2026-11-25T21:52:17.342959",
   "steps": {
     "momentum": {
       "status": "OK",
@@ -24,10 +24,10 @@
       "n_constituents_used": 48,
       "n_requested": 48,
       "missing": [],
-      "breadth_rows": 7750,
-      "strength_rows": 7695,
-      "breadth_latest": 2.1530245321143737,
-      "strength_latest": 1.0
+      "breadth_rows": 7751,
+      "strength_rows": 7696,
+      "breadth_latest": 1.7615655262753964,
+      "strength_latest": 0.5
     },
     "safe_haven": {
       "status": "OK",
@@ -40,17 +40,17 @@
       "latest": 0.09794643701934413,
       "probe": {
         "LTGILTBEES.NS": {
-          "rows": 1847,
+          "rows": 1848,
           "from": "2018-05-11",
           "USED": true
         },
         "GILT5YBEES.NS": {
-          "rows": 1384,
+          "rows": 1385,
           "from": "2021-04-07",
           "USED": false
         },
         "EBBETF0433.NS": {
-          "rows": 423,
+          "rows": 424,
           "from": "2025-03-03",
           "USED": false
         }
@@ -58,14 +58,14 @@
     },
     "put_call": {
       "status": "OK",
-      "rows": 610,
-      "newly_fetched": 0,
+      "rows": 611,
+      "newly_fetched": 1,
       "days_unavailable": 31,
       "range": [
         "2024-06-05",
-        "2026-11-23"
+        "2026-11-25"
       ],
-      "latest_pcr": 0.8205,
+      "latest_pcr": 1.0226,
       "note": "PCR is INVERTED when normalised (high PCR = fear)."
     },
     "credit_spread": {
