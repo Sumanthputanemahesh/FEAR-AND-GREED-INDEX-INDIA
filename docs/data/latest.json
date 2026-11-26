@@ -1,26 +1,26 @@
 {
-  "date": "2026-11-23",
-  "fgi": 68.86,
+  "date": "2026-11-25",
+  "fgi": 66.8,
   "zone": "Greed",
   "source": "extended",
   "n_components": 6,
-  "nifty_close": 25349.650390625,
+  "nifty_close": 25819.25,
   "components": {
-    "momentum": 97.6,
-    "volatility": 18.7,
+    "momentum": 99.6,
+    "volatility": 19.1,
     "strength": 55.0,
-    "breadth": 64.1,
-    "safe_haven": 97.2,
-    "put_call": 80.5
+    "breadth": 90.0,
+    "safe_haven": 98.8,
+    "put_call": 38.2
   },
   "timeline": {
-    "now": 68.86,
-    "prev_close": 61.35,
-    "week_ago": 66.14,
-    "month_ago": 28.55,
-    "year_ago": 51.53
+    "now": 66.8,
+    "prev_close": 68.86,
+    "week_ago": 65.54,
+    "month_ago": 28.88,
+    "year_ago": 50.4
   },
-  "updated_at": "2026-11-25T21:52:52+00:00",
-  "history_days": 358,
-  "core_history_days": 358
+  "updated_at": "2026-11-26T21:47:03+00:00",
+  "history_days": 359,
+  "core_history_days": 359
 }
