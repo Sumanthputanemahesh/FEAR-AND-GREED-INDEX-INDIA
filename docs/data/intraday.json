@@ -1,17 +1,17 @@
 [
   {
-    "time": "13:49",
-    "timestamp": "2026-11-25T13:49:34+00:00",
-    "composite": 69.52,
+    "time": "13:29",
+    "timestamp": "2026-11-26T13:29:20+00:00",
+    "composite": 70.58,
     "zone": "Greed",
-    "nifty_close": 25819.25,
+    "nifty_close": 25884.5,
     "components": {
       "strength": 55.0,
       "breadth": 64.1,
       "put_call": 80.5,
-      "momentum": 99.6,
-      "volatility": 19.1,
-      "safe_haven": 98.8
+      "momentum": 100.0,
+      "volatility": 24.3,
+      "safe_haven": 99.6
     },
     "live_components": [
       "momentum",
